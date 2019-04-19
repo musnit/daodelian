@@ -60,16 +60,17 @@ contract DaoDelianApp {
     return keccak256(abi.encodePacked(num1 * num2));
   }
 
-  /* function isStateTerminal(bytes calldata encodedState)
+  function isStateTerminal(bytes calldata encodedState)
     external
     pure
     returns (bool)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    return state.winner != GAME_IN_PROGRESS;
-  } */
+    return state.stage == Stage.DONE;
+  }
 
-  /* function getTurnTaker(
+  /// TODO: return current player address, based on previous committed data
+  function getTurnTaker(
     bytes calldata encodedState, address[] calldata signingKeys
   )
     external
@@ -77,8 +78,9 @@ contract DaoDelianApp {
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
+    /// TODO: not modulo, needs counter based on players
     return signingKeys[state.turnNum % 2];
-  } */
+  }
 
   /* function applyAction(
     bytes calldata encodedState, bytes calldata encodedAction
@@ -96,73 +98,38 @@ contract DaoDelianApp {
     return abi.encode(postState);
   } */
 
-  /* function resolve(bytes calldata encodedState, bytes calldata terms) external pure {
-  } */
+  /* function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
+    external
+    pure
+    returns (Transfer.Transaction memory)
+  {
+    AppState memory state = abi.decode(encodedState, (AppState));
 
-  /* function playMove(
-    AppState memory state,
-    address participantId,
-    uint256 x,
-    uint256 y
-  )
-    internal
-    pure
-    returns (AppState memory)
-  {
-    return state;
-  } */
-/*
-  function assertBoardIsFull(AppState memory preState)
-    internal
-    pure
-  {
-    for (uint256 i = 0; i < 3; i++) {
-      for (uint256 j = 0; j < 3; j++) {
-        require(
-          preState.board[i][j] != 0, "assertBoardIsFull: square is empty"
-        );
-      }
+    uint256[] memory amounts = new uint256[](2);
+    address[] memory to = new address[](2);
+    to[0] = state.playerAddrs[0];
+    to[1] = state.playerAddrs[1];
+    bytes32 expectedCommitHash = keccak256(
+      abi.encodePacked(state.salt, state.playerFirstNumber)
+    );
+    if (expectedCommitHash == state.commitHash) {
+      amounts = getWinningAmounts(
+        state.playerFirstNumber, state.playerSecondNumber, terms.limit
+      );
+    } else {
+      amounts[0] = 0;
+      amounts[1] = terms.limit;
     }
-  }
 
-  function assertWin(
-    uint256 playerId,
-    AppState memory state,
-    WinClaim memory winClaim
-  )
-    internal
-    pure
-  {
-    uint256 expectedSquareState = playerId + 1;
-    if (winClaim.winClaimType == WinClaimType.COL) {
-      require(
-        state.board[winClaim.idx][0] == expectedSquareState, "Win Claim not valid"
-      );
-      require(
-        state.board[winClaim.idx][1] == expectedSquareState, "Win Claim not valid"
-      );
-      require(
-        state.board[winClaim.idx][2] == expectedSquareState, "Win Claim not valid"
-      );
-    } else if (winClaim.winClaimType == WinClaimType.ROW) {
-      require(
-        state.board[0][winClaim.idx] == expectedSquareState, "Win Claim not valid"
-      );
-      require(
-        state.board[1][winClaim.idx] == expectedSquareState, "Win Claim not valid"
-      );
-      require(
-        state.board[2][winClaim.idx] == expectedSquareState, "Win Claim not valid"
-      );
-    } else if (winClaim.winClaimType == WinClaimType.DIAG) {
-      require(state.board[0][0] == expectedSquareState, "Win Claim not valid");
-      require(state.board[1][1] == expectedSquareState, "Win Claim not valid");
-      require(state.board[2][2] == expectedSquareState, "Win Claim not valid");
-    } else if (winClaim.winClaimType == WinClaimType.CROSS_DIAG) {
-      require(state.board[2][0] == expectedSquareState, "Win Claim not valid");
-      require(state.board[1][1] == expectedSquareState, "Win Claim not valid");
-      require(state.board[0][2] == expectedSquareState, "Win Claim not valid");
-    }
+    bytes[] memory data = new bytes[](2);
+
+    return Transfer.Transaction(
+      terms.assetType,
+      terms.token,
+      to,
+      amounts,
+      data
+    );
   } */
 
 }

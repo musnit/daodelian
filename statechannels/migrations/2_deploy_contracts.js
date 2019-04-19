@@ -3,10 +3,12 @@ const tdr = require('truffle-deploy-registry')
 // TODO: remove, just doing quick setup testing
 // const TicTacToeApp = artifacts.require('TicTacToeApp')
 const DaoDelianApp = artifacts.require('DaoDelianApp')
+const DaoDelianRegistry = artifacts.require('DaoDelianRegistry')
 
 const ARTIFACTS = [
   // TicTacToeApp
-  DaoDelianApp
+  DaoDelianApp,
+  DaoDelianRegistry
 ]
 
 module.exports = (deployer, network) => {
