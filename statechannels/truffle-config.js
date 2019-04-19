@@ -1,12 +1,14 @@
-const HDWalletProvider = require("truffle-hdwallet-provider");
+const HDWalletProvider = require("truffle-hdwallet-provider")
+const pkg = require('./package.json')
+console.log('pkg.devDependencies.solc', pkg.devDependencies.solc)
 
-require("ts-node/register");
+// require("ts-node/register");
 require("dotenv").config();
 
 module.exports = {
   compilers: {
     solc: {
-      version: "../../node_modules/solc"
+      version: pkg.devDependencies.solc
     }
   },
   networks: {
