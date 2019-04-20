@@ -1,6 +1,7 @@
 const crypto = require('crypto');
 const db = require('../lib/redis');
 const StateChannel = require('./stateChannel');
+const starcraft = require('./starcraft');
 
 class Game {
   constructor(id) {
@@ -68,6 +69,14 @@ class Game {
     game.pendingState = [];
     game.state.push(proposal);
     await db.setKey('game', this.channelId, game);
+
+    // based on game type, submit to module!
+    if (proposal.options && proposal.options.type && proposal.options.type === 'starcraft') {
+      const stateData = proposal.initialState;
+      starcraft.startGame();
+      starcraft.setStrategy(stateData.player, stateData.strategy);
+    }
+
     return game;
   }
 

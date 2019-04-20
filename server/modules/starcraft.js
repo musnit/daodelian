@@ -16,28 +16,28 @@ module.exports = {
 
     cmd.on('exit', (code) => {
       console.log(`Child exited with code ${code}`);
-      runningGame = null;
+      this.runningGame = null;
     });
-    runningGame = cmd;
+    this.runningGame = cmd;
   },
 
   stopGame: () => {
-    runningGame.kill();
-    runningGame = null;
+    this.runningGame.kill();
+    this.runningGame = null;
   },
 
-  getStrategy: () => {
+  getStrategy: async () => {
     const p1Strat = await db.getKey('strat', 1);
     const p2Strat = await db.getKey('strat', 2);
     return {
       strats: {
         1: p1Strat,
         2: p2Strat,
-      }
-    }
+      },
+    };
   },
 
   setStrategy: ({ player, strat }) => {
-    db.setKey('strat', player, strat );
-  }
+    db.setKey('strat', player, strat);
+  },
 };
