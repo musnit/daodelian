@@ -9,7 +9,7 @@ class Game {
   }
 
   async loadFromDb() {
-    await db.getKey('game', this.channelId);
+    return db.getKey('game', this.channelId);
   }
 
   // Setup all variables needed
@@ -47,6 +47,7 @@ class Game {
     // get game by ID, update pending state, store
     // TODO: If majority votes propose same, then commit!
     const game = await db.getKey('game', this.channelId);
+    console.log('proposalSubmit', game);
 
     if (proposedIdx) {
       game.pendingState = game.pendingState || [];
