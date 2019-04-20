@@ -3,18 +3,19 @@ const crypto = require('crypto');
 // const web3Provider = require('../lib/web3Provider');
 
 class StateChannel {
-  constructor({ address, channelId, validator, participants }) {
-    this.address = address
-    this.channelId = channelId
-    this.validator = validator
-    this.participants = participants
-    this.stage = 'TBD'
-    this.currentTurnNum = 0
-    this.commitHashes = []
-    this.committers = []
-    this.salts = []
+  constructor({
+    contractAddress, validatorAddress, participants,
+  }) {
+    this.contractAddress = contractAddress;
+    this.validatorAddress = validatorAddress;
+    this.participants = participants;
+    this.stage = 'TBD';
+    this.currentTurnNum = 0;
+    this.commitHashes = [];
+    this.committers = [];
+    this.salts = [];
 
-    return this
+    return this;
   }
 
   stateUpdate() {
@@ -23,11 +24,11 @@ class StateChannel {
       turnNum: 0,
       type: '',
       salt: '',
-      commitHash: ''
-    }
+      commitHash: '',
+    };
 
     // TODO: finish!
-    return this
+    return this;
   }
 
   stateResolve() {
