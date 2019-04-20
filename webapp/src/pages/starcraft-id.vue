@@ -1,5 +1,5 @@
 <template lang='pug'>
-layout.game-detail
+.layout.game-detail
   h1
     | Starcraft 2 - {{ scId }}
 
@@ -40,20 +40,20 @@ layout.game-detail
 </template>
 
 <script>
-import { mapActions } from 'vuex';
+// import { mapActions } from 'vuex';
 
 export default {
   props: ['scId'],
 
   methods: {
-    ...mapActions('games', ['startGame']),
+    // ...mapActions('games', ['startGame']),
     submitSomething() {
       alert('HELLLLLOOOOOOO');
     },
   },
 
   mounted() {
-    this.startGame();
+    this.$store.dispatchApiAction('FETCH_GAME', { id: this.scId });
   },
 };
 </script>
