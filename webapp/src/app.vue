@@ -36,7 +36,8 @@ html, body {
 
 body {
   // background: lighten(@brand-color, 30%);
-  padding: @body-padding;
+  // padding: @body-padding;
+  padding: 0;
   @media @mq-small-only {
     padding: @body-padding-mobile;
   }
