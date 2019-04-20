@@ -16,6 +16,7 @@ layout.game-detail
 import { mapActions } from 'vuex';
 import $ from 'jquery';
 import ChessBoard from '@/lib/chessboard-0.3.0';
+import Chess from 'chess.js';
 
 export default {
   props: ['chessId'],
@@ -63,14 +64,30 @@ export default {
 
 
   mounted() {
+    this.game = new Chess();
     window.$ = $;
     const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
+      const gameMove = this.game.move({
+        from: source,
+        to: target,
+        promotion: 'q',
+      });
+      if (gameMove === null) { return 'snapback'; }
+
       console.log(source, target, piece, newPos, oldPos, orientation);
       const move = { source, target };
       this.chessInteraction(move, newPos);
       return 'snapback';
     };
 
+    const onDragStart = function (source, piece, position, orientation) {
+      /*     if (this.game.gameOver() === true ||
+        (this.game.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (this.game.turn() === 'b' && piece.search(/^w/) !== -1) ||
+        (this.game.turn() !== side.charAt(0))) {
+        return false;
+      } */
+    };
 
     this.draggableCfg = {
       draggable: true,
