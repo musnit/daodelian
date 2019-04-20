@@ -95,21 +95,26 @@ contract DaoDelianApp is CounterfactualApp  {
     return this.getHashedValue(_salt, _value, _sender) == _hashedMessage;
   }
 
-  function getAbiEncodeAction(bytes32 _data) public pure returns (bytes32) {
+  function getAbiEncodeAction(bytes32 _data) public pure returns (bytes memory) {
     Action memory tmp;
     tmp.actionType = ActionType.PRECOMMIT;
     // TODO: this shouldn't come from here
     tmp.turnNum = 1;
     tmp.commitHash = _data;
-    return keccak256(abi.encode(tmp));
+    return abi.encode(tmp);
   }
 
-  function getAbiEncodeState(bytes32[] memory _commitHashes) public pure returns (bytes32) {
+  function getAbiEncodeState(bytes32[] memory _commitHashes) public pure returns (bytes memory) {
     AppState memory tmp;
     tmp.stage = Stage.COMMIT_REVEAL;
     tmp.currentTurnNum = 1;
-    tmp.commitHashes = _commitHashes;
-    return keccak256(abi.encode(tmp));
+    // tmp.commitHashes = _commitHashes;
+    tmp.participants;
+    tmp.salts;
+    tmp.committers;
+
+    if (_commitHashes.length > 0) tmp.commitHashes = _commitHashes;
+    return abi.encode(tmp);
   }
 
   function isStateTerminal(bytes calldata encodedState)
@@ -136,11 +141,12 @@ contract DaoDelianApp is CounterfactualApp  {
   function applyAction(
     bytes calldata encodedState,
     bytes calldata encodedAction,
-    string calldata value,
-    address callee
+    address[] calldata coms
+    // string calldata value,
+    // address participant
   )
     external
-    view
+    pure
     returns (bytes memory)
   {
     AppState memory postState = abi.decode(encodedState, (AppState));
@@ -156,37 +162,43 @@ contract DaoDelianApp is CounterfactualApp  {
     // no validity is needed to be proved, just require precommit values
     // requires that we keep track of participants, active participant ID
     // TODO: Check that there isn't a precommited state at this turn num and salt!
-    if (
-      action.actionType == ActionType.PRECOMMIT &&
-      postState.commitHashes[action.turnNum].length == 0 &&
-      action.salt.length == 0 &&
-      action.commitHash.length > 0
-    ) {
-      postState.committers[action.turnNum] = callee;
-      postState.commitHashes[action.turnNum] = keccak256(encodedAction);
-      postState.currentTurnNum = action.turnNum.add(1);
-    }
+    // if (
+    //   action.actionType == ActionType.PRECOMMIT &&
+    // //   postState.commitHashes[action.turnNum].length == 0 &&
+    // //   action.salt.length == 0 &&
+    //   action.commitHash.length > 0
+    // ) {
+    //   postState.committers[action.turnNum] = callee;
+    //   postState.commitHashes[action.turnNum] = keccak256(encodedAction);
+    //   postState.currentTurnNum = action.turnNum.add(1);
+    // }
+    // postState.committers[action.turnNum] = participant;
+    // address[] memory coms;
+    // coms[action.turnNum] = participant;
+    postState.committers = coms;
+    // postState.commitHashes[action.turnNum] = keccak256(abi.encodePacked(encodedAction));
+    postState.currentTurnNum = action.turnNum.add(1);
 
     /// @dev Data REVEAL Phase, Check new data and validate matches previous submission
     // no validity is needed to be proved, just commit to state
     // TODO: Check that there isn't a precommited state at this turn num and salt!
-    if (
-      action.actionType == ActionType.REVEAL &&
-      action.salt.length == 0 &&
-      action.commitHash.length > 0
-    ) {
-      // TODO: change the msg sender to previous member
-      require(
-        this.isHashValueValid(
-          action.salt,
-          value,
-          callee,
-          postState.commitHashes[action.turnNum]
-        ),
-        "precommit data hash invalid"
-      );
-      postState.salts[action.turnNum] = action.salt;
-    }
+    // if (
+    //   action.actionType == ActionType.REVEAL &&
+    //   action.salt.length == 0 &&
+    //   action.commitHash.length > 0
+    // ) {
+    //   // TODO: change the msg sender to previous member
+    //   require(
+    //     this.isHashValueValid(
+    //       action.salt,
+    //       value,
+    //       callee,
+    //       postState.commitHashes[action.turnNum]
+    //     ),
+    //     "precommit data hash invalid"
+    //   );
+    //   postState.salts[action.turnNum] = action.salt;
+    // }
 
     return abi.encode(postState);
   }
