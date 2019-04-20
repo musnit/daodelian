@@ -43,6 +43,7 @@ module.exports = {
     'one-var-declaration-per-line': 0,
     'class-methods-use-this': 0,
     'consistent-return': 0,
-    'func-names': 0
+    'func-names': 0,
+    'max-len': 0,
   }
 }
