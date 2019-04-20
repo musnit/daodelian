@@ -1,5 +1,6 @@
 const crypto = require('crypto');
-const web3Provider = require('../lib/web3Provider');
+const redis = require('../lib/redis');
+const StateChannel = require('./StateChannel');
 
 class Game {
   constructor() {
@@ -9,8 +10,24 @@ class Game {
 
   // Setup all variables needed
   // initialize state channel
-  start() {
+  start(ctx) {
+    // TODO: Use new state channel
+    const { contractAddress } = ctx.body
+    const scInstance = new StateChannel({
+      address: contractAddress,
+      channelId: this.channelId,
+    })
 
+    const game = {
+      channelId: this.channelId,
+
+    }
+
+
+    await db.setKey('game', this.channelId, game);
+    ctx.body = {
+      success: true,
+    };
   }
 
   // adds proposal to pending game state for a team
@@ -20,7 +37,7 @@ class Game {
 
   // adds proposal to game state (redis) and state channel
   commitProposal() {
-
+    // TODO: Send to the state channel
   }
 }
 
