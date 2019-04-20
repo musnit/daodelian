@@ -5,17 +5,12 @@
 
   div.game-layout
     div.game-controls
-      button(@click.prevent='submitSomething')
-        img(src='@/assets/images/adept.jpg')
-      button
-        span
-          | Action 2
-      button
-        span
-          | Action 3
-      button
-        span
-          | Action 4
+      button(
+        v-for="item in buttons"
+        @click.prevent='submitAction(item)'
+      )
+        img(:src='item.src')
+        span {{item.name}}
 
       div.proposals
         // div.prop-item(v-for='item in game.pendingState')
@@ -45,13 +40,42 @@
 <script>
 import { mapActions } from 'vuex';
 
+const buttons = [
+  {
+    id: 1,
+    name: 'Zealot',
+    src: require('@/assets/images/zealot.jpg'),
+  },
+  {
+    id: 2,
+    name: 'Stalker',
+    src: require('@/assets/images/stalker.jpg'),
+  },
+  {
+    id: 3,
+    name: 'Sentry',
+    src: require('@/assets/images/sentry.jpg'),
+  },
+  {
+    id: 4,
+    name: 'Adept',
+    src: require('@/assets/images/adept.jpg'),
+  },
+];
+
 export default {
   props: ['scId'],
 
+  data() {
+    return {
+      buttons,
+    };
+  },
+
   methods: {
     // ...mapActions('games', ['startGame']),
-    submitSomething() {
-      alert('HELLLLLOOOOOOO');
+    submitAction(item) {
+      console.log('item', item);
     },
 
     getGame() {
