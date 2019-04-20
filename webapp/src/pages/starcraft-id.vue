@@ -19,8 +19,8 @@
           | Action 4
 
       div.proposals
-        div.prop-item(v-for='item in game.pendingState')
-          {{ commitHash }}
+        // div.prop-item(v-for='item in game.pendingState')
+          // | {{ item.commitHash }}
 
     div.game-container
       iframe(
