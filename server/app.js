@@ -13,6 +13,7 @@ const PORT = 4000;
 
 const app = new Koa();
 
+app.use(bodyParser());
 app.use((ctx, next) => { ctx.$ = ctx.state; return next(); });
 app.use(loggingMiddleware);
 app.use(errorMiddleware);
@@ -26,12 +27,11 @@ app.use(async (ctx, next) => {
 
 (async () => {
   await app.listen(PORT);
-  console.log(`Server is running on port ${PORT} :D`);
+  console.log(`Server is running on port http://localhost:${PORT} :D`);
 })();
 
 
 // app.use(cors());
-// app.use(bodyParser());
 
 
 // app.use('users', {
