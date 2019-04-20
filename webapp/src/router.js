@@ -3,8 +3,8 @@ import Router from 'vue-router';
 
 import HomePage from './pages/home.vue';
 import AboutPage from './pages/about.vue';
-import GamePage from './pages/games-id.vue';
 import ProfilePage from './pages/profile.vue';
+import StarcraftPage from './pages/starcraft-id.vue';
 import TeamPage from './pages/team.vue';
 import NotFoundPage from './pages/404.vue';
 
@@ -25,7 +25,7 @@ export default new Router({
       path: '/team/:teamId', name: 'team', component: TeamPage, props: true,
     },
     {
-      path: '/games/:gameId', name: 'game', component: GamePage, props: true,
+      path: '/starcraft/:scId', name: 'starcraft', component: StarcraftPage, props: true,
     },
 
     { path: '*', name: 'not-found', component: NotFoundPage },
