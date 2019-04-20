@@ -1,3 +1,4 @@
+const _ = require('lodash');
 const bluebird = require('bluebird');
 const redis = require('redis');
 
@@ -20,8 +21,24 @@ async function getKey(type, id, data) {
   return JSON.parse(rawVal);
 }
 
+async function getAllOfType(type) {
+  const keys = await client.keysAsync(`${type}:*`);
+  if (!keys.length) return [];
+  const items = await client.mgetAsync(keys);
+  return _.map(items, JSON.parse);
+}
+
+async function getIdsOfType(type, ids = []) {
+  const keys = _.map(ids, (id) => `${type}:${id}`);
+  if (!keys.length) return [];
+  const items = await client.mgetAsync(keys);
+  return _.map(items, JSON.parse);
+}
+
 module.exports = {
   client,
   getKey,
   setKey,
+  getAllOfType,
+  getIdsOfType,
 };
