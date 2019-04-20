@@ -4,6 +4,7 @@ import Vuex from 'vuex';
 import { initializeStore, buildApiActions } from '@/lib/vuex-api';
 
 import metamaskModule from './metamask-module';
+import gameModule from './game-module';
 
 Vue.use(Vuex);
 
@@ -54,6 +55,7 @@ const store = initializeStore({
   }),
   modules: {
     metamask: metamaskModule,
+    game: gameModule,
   },
   strict: process.env.NODE_ENV !== 'production',
 });
