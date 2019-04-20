@@ -10,7 +10,6 @@ layout.game-detail
     div.game-container
         div#board
 
-
 </template>
 
 <script>
@@ -21,10 +20,44 @@ import ChessBoard from '@/lib/chessboard-0.3.0';
 export default {
   props: ['chessId'],
 
+  data() {
+    return {
+      proposingMoveSource: null,
+    };
+  },
+  metaInfo() {
+    return {
+      style: [{ type: 'text/css', cssText: this.themeStyles }],
+    };
+  },
   methods: {
     ...mapActions('games', ['startGame']),
     submitSomething() {
       alert('HELLLLLOOOOOOO');
+    },
+    chessInteraction(move, newPos) {
+      // TODO: send proposal of move to server
+      this.proposingMoveSource = move.source;
+      this.proposingMoveTarget = move.target;
+
+      // disable proposing
+      this.board = window.ChessBoard('board', this.notDraggableCfg);
+    },
+
+    moveReceived(move) {
+      // TODO: this.board.move(move)
+      // TODO: re-enable proposing if my turn again
+    },
+
+  },
+  computed: {
+    themeStyles() {
+      // css that gets injected into the head
+      if (this.proposingMoveSource) {
+        return `.square-${this.proposingMoveSource} {background: yellow !important;} .square-${this.proposingMoveTarget} {background: yellow !important;}`;
+      }
+
+      return '';
     },
   },
 
@@ -33,20 +66,26 @@ export default {
     window.$ = $;
     const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
       console.log(source, target, piece, newPos, oldPos, orientation);
-      if (piece.search(/b/) !== -1) {
-        return 'snapback';
-      }
-      return '';
+      const move = { source, target };
+      this.chessInteraction(move, newPos);
+      return 'snapback';
     };
 
 
-    const cfg = {
+    this.draggableCfg = {
       draggable: true,
       dropOffBoard: 'snapback', // this is the default
       position: 'start',
-      onChange: onDrop,
+      onDrop,
     };
-    this.board = window.ChessBoard('board', cfg);
+    this.notDraggableCfg = {
+      draggable: false,
+      dropOffBoard: 'snapback', // this is the default
+      position: 'start',
+      onDrop,
+    };
+
+    this.board = window.ChessBoard('board', this.draggableCfg);
   },
 };
 </script>
