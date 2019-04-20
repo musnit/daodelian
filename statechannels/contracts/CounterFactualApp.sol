@@ -17,17 +17,18 @@ interface CounterfactualApp {
   function applyAction(
     bytes calldata encodedState,
     bytes calldata encodedAction,
-    string calldata value,
-    address callee
+    // string calldata value,
+    // address callee
+    address[] calldata coms
   )
     external
     pure
     returns (bytes memory);
 
   // NOTE: TODO needs to be generic terms!
-  function resolve(bytes calldata encodedState, bytes calldata terms)
-    external
-    pure
-    returns (bytes memory);
+//   function resolve(bytes calldata encodedState, bytes calldata terms)
+//     external
+//     pure
+//     returns (bytes memory);
 
 }
