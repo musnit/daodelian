@@ -9,45 +9,48 @@ module.exports = (router) => {
     };
 
     ctx.$.game = new Game();
-    await ctx.$.game.start(gameInput);
+    ctx.$.game = await ctx.$.game.start(gameInput);
     ctx.body = {
-      ...game,
+      ...ctx.$.game,
     };
   });
 
   router.param('gameId', async (gameId, ctx, next) => {
     ctx.$.game = new Game(gameId);
-    await ctx.$.game.loadFromDb();
+    ctx.$.gameData = await ctx.$.game.loadFromDb();
+    return next();
+  });
+
+  router.param('proposedIdx', async (proposedIdx, ctx, next) => {
+    ctx.$.proposedIdx = proposedIdx || null;
+    return next();
   });
 
   router.get('/games/:gameId', async (ctx, next) => {
-    ctx.body = ctx.$.game;
+    console.log('ctx.$.game', ctx.$.game);
+    ctx.body = { ...ctx.$.gameData };
   });
 
   router.post('/games/:gameId/proposals', async (ctx, next) => {
     const gameInput = {
-      channelId: ctx.$.game.id,
+      channelId: ctx.$.game.channelId,
       ...ctx.request.body,
     };
 
-    const game = await new Game().proposalSubmit(gameInput);
+    ctx.$.game = await ctx.$.game.proposalSubmit(gameInput);
     ctx.body = {
-      ...game,
+      ...ctx.$.game,
     };
   });
 
   router.get('/games/:gameId/proposals/:proposedIdx', async (ctx, next) => {
-    const { id, proposedIdx } = ctx.params;
-    const game = await db.getKey('game', id);
-
-    if (proposedIdx) ctx.body = game.pendingState[proposedIdx];
-    else ctx.body = game.pendingState;
+    console.log('ctx.$.game.pendingState', ctx.$.gameData.pendingState);
+    if (ctx.$.proposedIdx) ctx.body = ctx.$.gameData.pendingState[ctx.$.proposedIdx];
+    else ctx.body = ctx.$.gameData.pendingState;
   });
 
   router.delete('/games/:gameId/proposals', async (ctx, next) => {
-    const { id } = ctx.params;
-    const gameInput = { channelId: id };
-    const game = await new Game().proposalClear(gameInput);
+    const game = await ctx.$.game.proposalClear();
     ctx.body = {
       ...game,
     };
@@ -55,11 +58,10 @@ module.exports = (router) => {
 
   router.post('/games/:gameId/commit', async (ctx, next) => {
     const gameInput = {
-      channelId: id,
       ...ctx.request.body,
     };
 
-    const game = await new Game().proposalCommit(gameInput);
+    const game = await ctx.$.game.proposalCommit(gameInput);
     ctx.body = {
       ...game,
     };
