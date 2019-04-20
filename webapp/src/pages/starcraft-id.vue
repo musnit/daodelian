@@ -6,8 +6,7 @@
   div.game-layout
     div.game-controls
       button(@click.prevent='submitSomething')
-        span
-          | Action 1
+        img(src='@/assets/images/adept.jpg')
       button
         span
           | Action 2
