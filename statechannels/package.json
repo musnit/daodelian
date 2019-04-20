@@ -1,0 +1,31 @@
+{
+  "name": "statechannels",
+  "version": "1.0.0",
+  "description": "State channels for daodelian",
+  "main": "index.js",
+  "scripts": {
+    "b": "truffle compile",
+    "build": "truffle migrate --reset",
+    "migrate": "truffle migrate",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "dao",
+    "Ethereum",
+    "hackathon"
+  ],
+  "author": "@trevorjtclarke",
+  "license": "Apache 2",
+  "devDependencies": {
+    "@counterfactual/contracts": "0.1.1",
+    "@counterfactual/types": "0.0.9",
+    "ethers": "4.0.27",
+    "truffle": "5.0.12",
+    "truffle-deploy-registry": "0.5.1",
+    "truffle-hdwallet-provider": "1.0.6"
+  },
+  "dependencies": {
+    "dotenv": "^7.0.0",
+    "solc": "0.5.3"
+  }
+}
