@@ -21,16 +21,48 @@ const gameModule = {
         Vue.set(state, 'game', response);
       },
     },
-    // UPDATE_GAME: {
-    //   action: (ctx, payload) => ({
-    //     method: 'patch',
-    //     url: `/users/${ctx.getters.authUserAddress}`,
-    //     params: payload,
-    //   }),
-    //   mutation: (state, { response }) => {
-    //     Vue.set(state, 'user', response);
-    //   },
-    // },
+    FETCH_GAME_PROPOSALS: {
+      action: (ctx, payload) => ({
+        method: 'get',
+        url: `/games/${payload.id}/proposals/${payload.proposedIdx}`,
+      }),
+      mutation: (state, { response }) => {
+        console.log('response', response);
+        // Vue.set(state, 'game', response);
+      },
+    },
+    ADD_GAME_PROPOSAL: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: `/games/${payload.id}/proposals/${payload.proposedIdx}`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        console.log('response', response);
+        // Vue.set(state, 'game', response);
+      },
+    },
+    UPDATE_GAME_PROPOSAL: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: `/games/${payload.id}/proposals/${payload.proposedIdx}`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        console.log('response', response);
+        // Vue.set(state, 'game', response);
+      },
+    },
+    DELETE_GAME_PROPOSALS: {
+      action: (ctx, payload) => ({
+        method: 'delete',
+        url: `/games/${payload.id}/proposals`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'game', response);
+      },
+    },
   }, {
     actions: {
       LOGOUT(ctx) {

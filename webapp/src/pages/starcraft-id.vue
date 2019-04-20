@@ -18,6 +18,10 @@
         span
           | Action 4
 
+      div.proposals
+        div.prop-item(v-for='item in game.pendingState')
+          {{ commitHash }}
+
     div.game-container
       iframe(
         src='https://player.twitch.tv/?channel=musnit'
@@ -57,13 +61,24 @@ export default {
     getProposals() {
       this.$store.dispatchApiAction('FETCH_GAME_PROPOSALS', { id: this.scId });
     },
-    addProposal() {},
-    updateProposal() {},
-    deleteProposal() {},
+    addProposal() {
+      this.$store.dispatchApiAction('ADD_GAME_PROPOSAL', { id: this.scId });
+    },
+    updateProposal(idx) {
+      this.$store.dispatchApiAction('UPDATE_GAME_PROPOSAL', {
+        id: this.scId,
+        proposedIdx: idx,
+        data: {},
+      });
+    },
+    deleteProposal(idx) {
+      this.$store.dispatchApiAction('DELETE_GAME_PROPOSALS', { id: this.scId });
+    },
   },
 
-  mounted() {
-    this.$store.dispatchApiAction('FETCH_GAME', { id: this.scId });
+  async mounted() {
+    await this.getGame();
+    await this.getProposals();
   },
 };
 </script>
