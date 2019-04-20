@@ -5,6 +5,7 @@ import HomePage from './pages/home.vue';
 import AboutPage from './pages/about.vue';
 import ProfilePage from './pages/profile.vue';
 import StarcraftPage from './pages/starcraft-id.vue';
+import ChessPage from './pages/chess-id.vue';
 import TeamPage from './pages/team.vue';
 import NotFoundPage from './pages/404.vue';
 
@@ -26,6 +27,9 @@ export default new Router({
     },
     {
       path: '/starcraft/:scId', name: 'starcraft', component: StarcraftPage, props: true,
+    },
+    {
+      path: '/chess/:chessId', name: 'chess', component: ChessPage, props: true,
     },
 
     { path: '*', name: 'not-found', component: NotFoundPage },
