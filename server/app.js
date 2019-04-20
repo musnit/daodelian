@@ -26,7 +26,7 @@ app.use(async (ctx, next) => {
 
 (async () => {
   await app.listen(PORT);
-  console.log(`Server is running on port ${PORT} :D`);
+  console.log(`Server is running on port http://localhost:${PORT} :D`);
 })();
 
 
