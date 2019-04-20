@@ -15,8 +15,8 @@ layout.game-detail
 
 <script>
 import { mapActions } from 'vuex';
-import ChessBoard from 'chessboardjs';
 import $ from 'jquery';
+import ChessBoard from '@/lib/chessboard-0.3.0';
 
 export default {
   props: ['chessId'],
@@ -28,14 +28,25 @@ export default {
     },
   },
 
+
   mounted() {
     window.$ = $;
+    const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
+      console.log(source, target, piece, newPos, oldPos, orientation);
+      if (piece.search(/b/) !== -1) {
+        return 'snapback';
+      }
+      return '';
+    };
+
+
     const cfg = {
       draggable: true,
       dropOffBoard: 'snapback', // this is the default
       position: 'start',
+      onChange: onDrop,
     };
-    this.board = ChessBoard('board', cfg);
+    this.board = window.ChessBoard('board', cfg);
   },
 };
 </script>
