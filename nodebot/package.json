@@ -1,0 +1,17 @@
+{
+  "name": "nodebot",
+  "version": "1.0.0",
+  "description": "SC2 Bot that accepts inputs from REST API",
+  "bin": "bot.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "pkg ./ --target win-x64 --out-path ./ladder_server"
+  },
+  "author": "Aidan Musnitzky",
+  "license": "MIT",
+  "dependencies": {
+    "@node-sc2/core": "node-sc2/core",
+    "@node-sc2/system-protoss-supply": "node-sc2/system-protoss-supply",
+    "pkg": "^4.3.7"
+  }
+}

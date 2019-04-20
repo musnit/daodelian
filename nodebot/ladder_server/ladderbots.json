@@ -1,0 +1,18 @@
+{
+	"Bots": {
+		"ProtossBot1": {
+			"Race": "Protoss",
+			"Type": "BinaryCpp",
+			"RootPath": "./",
+			"FileName": "nodebot.exe",
+			"Args": "--player 1"
+        },
+		"ProtossBot2": {
+			"Race": "Protoss",
+			"Type": "BinaryCpp",
+			"RootPath": "./",
+			"FileName": "nodebot.exe",
+			"Args": "--player 2"
+        }
+	}
+}
