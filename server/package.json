@@ -13,7 +13,9 @@
   "dependencies": {
     "@feathersjs/feathers": "^3.3.1",
     "@koa/cors": "^3.0.0",
+    "basic-auth": "^2.0.1",
     "bluebird": "^3.5.4",
+    "eth-sig-util": "^1.4.2",
     "ethereum-address": "0.0.4",
     "koa": "^2.7.0",
     "koa-bodyparser": "^4.2.1",
