@@ -1,11 +1,14 @@
-pragma solidity 0.5.7;
+pragma solidity ^0.5.3;
 pragma experimental "ABIEncoderV2";
 
-/* import "@counterfactual/contracts/contracts/CounterfactualApp.sol"; */
+/* import "zeppelin-solidity/contracts/ownership/Ownable.sol"; */
+/* import "zeppelin-solidity/contracts/lifecycle/Pausable.sol"; */
+import "./SafeMath.sol";
+import "./CounterfactualApp.sol";
 
-
-/* contract DaoDelianApp is CounterfactualApp { */
-contract DaoDelianApp {
+contract DaoDelianApp is CounterfactualApp  {
+/* contract DaoDelianApp { */
+  using SafeMath for uint256;
 
   /// @dev Events -- Disregarded for state transactions, stored for start & end state
   event ChannelStart(address indexed _owner, uint256 indexed _channelId, address[] _participants);
@@ -32,13 +35,10 @@ contract DaoDelianApp {
     address validationContract;
     Stage stage;
     uint256 turnNum;
-    // TODO: Reflect the state structure defined in board
-    bool outcomeBool;
-    bool snapshotBool;
-    uint256[][] outcome;
-    /// @dev BYOG needs data abstraction
-    ///      IDEA, setup matrix based games, and simple bool outcomes
-    uint256[][] snapshot;
+    // Reflect the state structure defined in rules, array is used to be generic
+    uint256[] outcome;
+    /// @dev setup is for matrix based games, and simple bool outcomes
+    uint256[] snapshot;
   }
 
   struct Action {
@@ -47,6 +47,32 @@ contract DaoDelianApp {
     bytes32 salt;
     bytes32 commitHash;
   }
+
+  address public owner;
+
+  constructor() public {
+    owner = msg.sender;
+  }
+
+  function initialize(
+      address _validationContract,
+      address[] memory _participants
+    )
+      public
+      returns (bytes memory)
+    {
+      AppState memory initState;
+      initState.validationContract = _validationContract;
+      initState.participants = _participants;
+      initState.stage = Stage.INITIALIZE;
+
+      // TODO: Generate nonce!
+      uint256 channelId = 234;
+
+      emit ChannelStart(owner, channelId, _participants);
+
+      return abi.encode(initState);
+    }
 
   function getRandomSalt(uint256 num1, uint256 num2)
     public
@@ -70,7 +96,7 @@ contract DaoDelianApp {
   }
 
   /// TODO: return current player address, based on previous committed data
-  function getTurnTaker(
+  /* function getTurnTaker(
     bytes calldata encodedState, address[] calldata signingKeys
   )
     external
@@ -78,9 +104,9 @@ contract DaoDelianApp {
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    /// TODO: not modulo, needs counter based on players
-    return signingKeys[state.turnNum % 2];
-  }
+    /// TODO: TEST!! based on players
+    return signingKeys[state.turnNum % state.participants.length];
+  } */
 
   /* function applyAction(
     bytes calldata encodedState, bytes calldata encodedAction

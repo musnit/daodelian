@@ -1,17 +1,21 @@
 const HDWalletProvider = require("truffle-hdwallet-provider")
 const pkg = require('./package.json')
-console.log('pkg.devDependencies.solc', pkg.devDependencies.solc)
+console.log('pkg solc', pkg.dependencies.solc)
 
-// require("ts-node/register");
 require("dotenv").config();
 
 module.exports = {
   compilers: {
     solc: {
-      version: pkg.devDependencies.solc
+      version: pkg.dependencies.solc
     }
   },
   networks: {
+    development: {
+      host: 'localhost',
+      port: 8545,
+      network_id: '*' // Match any network id
+    },
     ganache: {
       network_id: 7777777,
       host: "localhost",
@@ -50,10 +54,10 @@ module.exports = {
       gasPrice: process.env.DEFAULT_GAS_PRICE
     },
   },
-  solc: {
-    optimizer: {
-      enabled: true,
-      runs: 200
-    }
-  }
+  // solc: {
+  //   optimizer: {
+  //     enabled: true,
+  //     runs: 200
+  //   }
+  // }
 };
