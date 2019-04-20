@@ -9,18 +9,18 @@ interface CounterfactualApp {
     pure
     returns (bool);
 
-  function getTurnTaker(bytes calldata, address[] calldata)
+  function getTurnTaker(bytes calldata encodedState, address[] calldata signingKeys)
     external
     pure
     returns (address);
 
-  function applyAction(bytes calldata, bytes calldata)
+  function applyAction(bytes calldata encodedState, bytes calldata encodedAction)
     external
     pure
     returns (bytes memory);
 
   // NOTE: TODO needs to be generic terms!
-  function resolve(bytes calldata, bytes calldata)
+  function resolve(bytes calldata encodedState, bytes calldata terms)
     external
     pure
     returns (bytes memory);

@@ -1,8 +1,6 @@
 pragma solidity ^0.5.3;
 pragma experimental "ABIEncoderV2";
 
-/* import "zeppelin-solidity/contracts/ownership/Ownable.sol"; */
-/* import "zeppelin-solidity/contracts/lifecycle/Pausable.sol"; */
 import "./SafeMath.sol";
 import "./CounterfactualApp.sol";
 
@@ -35,9 +33,9 @@ contract DaoDelianApp is CounterfactualApp  {
     address validationContract;
     Stage stage;
     uint256 turnNum;
+    /// @dev setup is for matrix/array based games
     // Reflect the state structure defined in rules, array is used to be generic
     uint256[] outcome;
-    /// @dev setup is for matrix based games, and simple bool outcomes
     uint256[] snapshot;
   }
 
@@ -95,8 +93,8 @@ contract DaoDelianApp is CounterfactualApp  {
     return state.stage == Stage.DONE;
   }
 
-  /// TODO: return current player address, based on previous committed data
-  /* function getTurnTaker(
+  /// @dev returns current player address, based on previous committed data
+  function getTurnTaker(
     bytes calldata encodedState, address[] calldata signingKeys
   )
     external
@@ -106,23 +104,41 @@ contract DaoDelianApp is CounterfactualApp  {
     AppState memory state = abi.decode(encodedState, (AppState));
     /// TODO: TEST!! based on players
     return signingKeys[state.turnNum % state.participants.length];
-  } */
+  }
 
-  /* function applyAction(
+  function applyAction(
     bytes calldata encodedState, bytes calldata encodedAction
   )
     external
     pure
     returns (bytes memory)
   {
-    AppState memory state = abi.decode(encodedState, (AppState));
+    AppState memory postState = abi.decode(encodedState, (AppState));
     Action memory action = abi.decode(encodedAction, (Action));
 
-    AppState memory postState;
+    require(action.actionType == ActionType.COMMIT_HASHED);
+
+    // TODO: Check that valid changes can occur!
+    /* if (action.actionType == ActionType.PLAY) {
+      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
+    } else if (action.actionType == ActionType.PLAY_AND_WIN) {
+      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
+      assertWin(state.turnNum % 2, postState, action.winClaim);
+      postState.winner = (postState.turnNum % 2) + 1;
+    } else if (action.actionType == ActionType.PLAY_AND_DRAW) {
+      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
+      assertBoardIsFull(postState);
+      postState.winner = 3;
+    } else if (action.actionType == ActionType.DRAW) {
+      assertBoardIsFull(state);
+      postState = state;
+      postState.winner = 3;
+    } */
+
     postState.turnNum += 1;
 
     return abi.encode(postState);
-  } */
+  }
 
   /* function resolve(bytes calldata encodedState, Transfer.Terms calldata terms)
     external

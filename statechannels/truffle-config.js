@@ -1,8 +1,7 @@
 const HDWalletProvider = require("truffle-hdwallet-provider")
 const pkg = require('./package.json')
-console.log('pkg solc', pkg.dependencies.solc)
 
-require("dotenv").config();
+require('dotenv').config();
 
 module.exports = {
   compilers: {
@@ -54,10 +53,10 @@ module.exports = {
       gasPrice: process.env.DEFAULT_GAS_PRICE
     },
   },
-  // solc: {
-  //   optimizer: {
-  //     enabled: true,
-  //     runs: 200
-  //   }
-  // }
+  solc: {
+    optimizer: {
+      enabled: true,
+      runs: 200
+    }
+  }
 };
