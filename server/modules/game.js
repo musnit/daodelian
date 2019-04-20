@@ -44,35 +44,37 @@ class Game {
   }
 
   // adds proposal to pending game state for a team
-  async proposalSubmit({ proposedState, proposedIdx }) {
+  async proposalSubmit({ channelId, proposedState, proposedIdx }) {
     // get game by ID, update pending state, store
     // TODO: If majority votes propose same, then commit!
-    const game = await db.getKey('game', this.channelId);
-    console.log('proposalSubmit', game);
+    const game = await db.getKey('game', channelId);
+    console.log('proposalSubmit', channelId, game);
+    game.pendingState = game.pendingState || [];
 
     if (proposedIdx) {
-      game.pendingState = game.pendingState || [];
       if (game.pendingState.length < proposedIdx) game.pendingState.push(proposedState);
       else game.pendingState[proposedIdx](proposedState);
     } else game.pendingState.push(proposedState);
+    console.log('game.pendingState', game.pendingState);
 
-    await db.setKey('game', this.channelId, game);
+    await db.setKey('game', channelId, game);
     return game;
   }
 
   // adds proposal to game state (redis) and state channel
-  async proposalCommit({ proposedIdx, participant }) {
+  async proposalCommit({ channelId, proposedIdx, participant }) {
     // TODO: Validate that the participant is the same as origin proposal
     // Get game proposal and Send to the state channel
-    const game = await db.getKey('game', this.channelId);
-    const proposal = game.pendingState.splice(proposedIdx, 1);
+    const game = await db.getKey('game', channelId);
+    const proposal = game.pendingState.length > 0 ? game.pendingState.splice(proposedIdx, 1) : null;
     game.pendingState = [];
     game.state.push(proposal);
     await db.setKey('game', this.channelId, game);
+    console.log('game.options', game, proposal);
 
     // based on game type, submit to module!
-    if (proposal.options && proposal.options.type && proposal.options.type === 'starcraft') {
-      const stateData = proposal.initialState;
+    if (game.options && game.options.gameType && game.options.gameType === 'sc2') {
+      const stateData = proposal[0];
       starcraft.startGame();
       starcraft.setStrategy(stateData.player, stateData.strategy);
     }

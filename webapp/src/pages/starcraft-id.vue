@@ -73,9 +73,17 @@ export default {
   },
 
   methods: {
-    // ...mapActions('games', ['startGame']),
-    submitAction(item) {
+    async submitAction(item) {
       console.log('item', item);
+      await this.addProposal({
+        proposedState: {
+          // TODO: Set player based on idx from participant array
+          player: 1,
+          strat: item.id,
+        },
+      }).then(() => {
+        this.commitProposal(0);
+      });
     },
 
     getGame() {
@@ -84,14 +92,25 @@ export default {
     getProposals() {
       this.$store.dispatchApiAction('FETCH_GAME_PROPOSALS', { id: this.scId });
     },
-    addProposal() {
-      this.$store.dispatchApiAction('ADD_GAME_PROPOSAL', { id: this.scId });
+    addProposal(data) {
+      this.$store.dispatchApiAction('ADD_GAME_PROPOSAL', {
+        id: this.scId,
+        ...data,
+      });
     },
     updateProposal(idx) {
       this.$store.dispatchApiAction('UPDATE_GAME_PROPOSAL', {
         id: this.scId,
         proposedIdx: idx,
         data: {},
+      });
+    },
+    commitProposal(proposedIdx) {
+      this.$store.dispatchApiAction('COMMIT_GAME_PROPOSAL', {
+        id: this.scId,
+        // TODO: change to be correct
+        participant: '0xca35b7d915458ef540ade6068dfe2f44e8fa733c',
+        proposedIdx,
       });
     },
     deleteProposal(idx) {

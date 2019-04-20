@@ -76,6 +76,7 @@ module.exports = (router) => {
 
   router.post('/games/:gameId/commit', async (ctx, next) => {
     const gameInput = {
+      channelId: ctx.$.game.channelId,
       ...ctx.request.body,
     };
 

@@ -34,7 +34,7 @@ const gameModule = {
     ADD_GAME_PROPOSAL: {
       action: (ctx, payload) => ({
         method: 'post',
-        url: `/games/${payload.id}/proposals/${payload.proposedIdx}`,
+        url: `/games/${payload.id}/proposals`,
         params: payload,
       }),
       mutation: (state, { response }) => {
@@ -49,7 +49,18 @@ const gameModule = {
         params: payload,
       }),
       mutation: (state, { response }) => {
-        console.log('response', response);
+        console.log('UPDATE_GAME_PROPOSAL', response);
+        // Vue.set(state, 'game', response);
+      },
+    },
+    COMMIT_GAME_PROPOSAL: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: `/games/${payload.id}/commit`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        console.log('COMMIT_GAME_PROPOSAL', response);
         // Vue.set(state, 'game', response);
       },
     },
