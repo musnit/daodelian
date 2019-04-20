@@ -14,17 +14,14 @@ contract DaoDelianApp is CounterfactualApp  {
 
   /// @dev Action type keeps track of phase cycle order, these are in order of execution
   enum ActionType {
-    START_PHASE,
-    COMMIT_HASHED,
-    COMMIT_REVEAL,
+    PRECOMMIT,
     REVEAL
   }
 
   enum Stage {
     INITIALIZE,
     STAKING,
-    COMMITTING,
-    REVEALING,
+    COMMIT_REVEAL,
     DONE
   }
 
@@ -32,15 +29,21 @@ contract DaoDelianApp is CounterfactualApp  {
     address[] participants;
     address validationContract;
     Stage stage;
-    uint256 turnNum;
+    uint256 currentTurnNum;
     /// @dev setup is for matrix/array based games
     // Reflect the state structure defined in rules, array is used to be generic
-    bytes[] snapshot;
+    // commitHash is generic hash of a turn or set of turns data, salted
+    // salts are stored in order directly with the commit hashes, and assigned upon reveal phase
+    bytes32[] commitHashes;
+    bytes32[] salts;
+    // enables out of order turns, required for validation of precommit, helpful for timeout & default state change
+    address[] committers;
   }
 
   struct Action {
     ActionType actionType;
-    uint256 number;
+    address callee;
+    uint256 turnNum;
     bytes32 salt;
     bytes32 commitHash;
   }
@@ -87,20 +90,26 @@ contract DaoDelianApp is CounterfactualApp  {
     return keccak256(abi.encodePacked(_value, _salt, _sender));
   }
 
-  function getAbiEncodeAction(bytes32 _data) public pure returns (bytes memory) {
-    Action memory tmp;
-    tmp.actionType = ActionType.COMMIT_HASHED;
-    tmp.number = 1;
-    tmp.commitHash = _data;
-    return abi.encode(tmp);
+  /// @dev Check if inputs match original hash
+  function isHashValueValid(bytes32 _salt, string memory _value, address _sender, bytes32 _hashedMessage) public view returns (bool) {
+    return this.getHashedValue(_salt, _value, _sender) == _hashedMessage;
   }
 
-  function getAbiEncodeState(bytes[] memory _snapshot) public pure returns (bytes memory) {
-    AppState memory tmp;
-    tmp.stage = Stage.COMMITTING;
+  function getAbiEncodeAction(bytes32 _data) public pure returns (bytes32) {
+    Action memory tmp;
+    tmp.actionType = ActionType.PRECOMMIT;
+    // TODO: this shouldn't come from here
     tmp.turnNum = 1;
-    tmp.snapshot = _snapshot;
-    return abi.encode(tmp);
+    tmp.commitHash = _data;
+    return keccak256(abi.encode(tmp));
+  }
+
+  function getAbiEncodeState(bytes32[] memory _commitHashes) public pure returns (bytes32) {
+    AppState memory tmp;
+    tmp.stage = Stage.COMMIT_REVEAL;
+    tmp.currentTurnNum = 1;
+    tmp.commitHashes = _commitHashes;
+    return keccak256(abi.encode(tmp));
   }
 
   function isStateTerminal(bytes calldata encodedState)
@@ -114,48 +123,70 @@ contract DaoDelianApp is CounterfactualApp  {
 
   /// @dev returns current player address, based on previous committed data
   function getTurnTaker(
-    bytes calldata encodedState, address[] calldata signingKeys
+    bytes calldata encodedState
   )
     external
     pure
     returns (address)
   {
     AppState memory state = abi.decode(encodedState, (AppState));
-    /// TODO: TEST!! based on players
-    return signingKeys[state.turnNum % state.participants.length];
+    return state.participants[state.currentTurnNum];
   }
 
   function applyAction(
-    bytes calldata encodedState, bytes calldata encodedAction
+    bytes calldata encodedState,
+    bytes calldata encodedAction,
+    string calldata value,
+    address callee
   )
     external
-    pure
+    view
     returns (bytes memory)
   {
     AppState memory postState = abi.decode(encodedState, (AppState));
     Action memory action = abi.decode(encodedAction, (Action));
 
-    require(action.commitHash != 0, "requires data");
-    require(action.actionType == ActionType.COMMIT_HASHED, "wrong action type");
+    // TODO:
+    /* require(this.getTurnTaker(msg.sender), "Not your turn"); */
 
-    // TODO: Check that valid changes can occur!
-    /* if (action.actionType == ActionType.PLAY) {
-      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
-    } else if (action.actionType == ActionType.PLAY_AND_WIN) {
-      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
-      assertWin(state.turnNum % 2, postState, action.winClaim);
-      postState.winner = (postState.turnNum % 2) + 1;
-    } else if (action.actionType == ActionType.PLAY_AND_DRAW) {
-      postState = playMove(state, state.turnNum % 2, action.playX, action.playY);
-      assertBoardIsFull(postState);
-      postState.winner = 3;
-    } else if (action.actionType == ActionType.DRAW) {
-      assertBoardIsFull(state);
-      postState = state;
-      postState.winner = 3;
-    } */
+    // - if precommit, check only for data and store in returned state
+    // - if reveal, check state hash validity (based on salt, sender, data)
 
-    postState.turnNum += 1;
+    /// @dev Data PRECOMMIT Phase, allowing all subsequent parties to precommit data
+    // no validity is needed to be proved, just require precommit values
+    // requires that we keep track of participants, active participant ID
+    // TODO: Check that there isn't a precommited state at this turn num and salt!
+    if (
+      action.actionType == ActionType.PRECOMMIT &&
+      postState.commitHashes[action.turnNum].length == 0 &&
+      action.salt.length == 0 &&
+      action.commitHash.length > 0
+    ) {
+      postState.committers[action.turnNum] = callee;
+      postState.commitHashes[action.turnNum] = keccak256(encodedAction);
+      postState.currentTurnNum = action.turnNum.add(1);
+    }
+
+    /// @dev Data REVEAL Phase, Check new data and validate matches previous submission
+    // no validity is needed to be proved, just commit to state
+    // TODO: Check that there isn't a precommited state at this turn num and salt!
+    if (
+      action.actionType == ActionType.REVEAL &&
+      action.salt.length == 0 &&
+      action.commitHash.length > 0
+    ) {
+      // TODO: change the msg sender to previous member
+      require(
+        this.isHashValueValid(
+          action.salt,
+          value,
+          callee,
+          postState.commitHashes[action.turnNum]
+        ),
+        "precommit data hash invalid"
+      );
+      postState.salts[action.turnNum] = action.salt;
+    }
 
     return abi.encode(postState);
   }
