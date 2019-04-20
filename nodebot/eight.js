@@ -1,21 +1,35 @@
 'use strict';
 
+const db = require('./redis');
+
 const { createSystem, taskFunctions } = require('@node-sc2/core');
 const { Alliance } = require('@node-sc2/core/constants/enums');
-const { CHARGE } = require('@node-sc2/core/constants/upgrade');
+const { PROTOSSGROUNDWEAPONSLEVEL1, } = require('@node-sc2/core/constants/upgrade');
 const { combatTypes } = require('@node-sc2/core/constants/groups');
 const {
     ASSIMILATOR,
     CYBERNETICSCORE,
     GATEWAY,
     NEXUS,
-    TWILIGHTCOUNCIL,
+    FORGE,
     ZEALOT,
+    STALKER,
+    SENTRY,
+    ADEPT
 } = require('@node-sc2/core/constants/unit-type');
 
 const { build, upgrade } = taskFunctions;
 
-const eightGateAllIn = createSystem({
+const strats = {
+    'zealot': ZEALOT,
+    'stalker': STALKER,
+    'sentry': SENTRY,
+    'adept': ADEPT
+};
+
+const eightGateAllIn = (player, initialStrat) => {
+    let unitToTrain = initialStrat;
+    return createSystem({
     name: 'EightGateAllIn',
     type: 'build',
     defaultOptions: {
@@ -26,9 +40,9 @@ const eightGateAllIn = createSystem({
         [17, build(GATEWAY)],
         [20, build(NEXUS)],
         [21, build(CYBERNETICSCORE)],
-        [26, build(TWILIGHTCOUNCIL)],
-        [34, upgrade(CHARGE)],
-        [34, build(GATEWAY, 7)],
+        [26, build(FORGE)],
+        [34, upgrade(PROTOSSGROUNDWEAPONSLEVEL1)],
+        [30, build(GATEWAY, 7)],
     ],
     async onStep({ resources }) {
         const { units, map, actions, debug } = resources.get();
@@ -49,14 +63,14 @@ const eightGateAllIn = createSystem({
         const idleGateways = units.getById(GATEWAY, { noQueue: true, buildProgress: 1 });
 
         if (idleGateways.length > 0) {
-            return Promise.all(idleGateways.map(gateway => actions.train(ZEALOT, gateway)));
+            return Promise.all(idleGateways.map(gateway => actions.train(unitToTrain, gateway)));
         }
     },
     async buildComplete() {
         this.setState({ buildComplete: true });
     },
     async onUpgradeComplete({ resources }, upgrade) {
-        if (upgrade === CHARGE) {
+        if (upgrade === PROTOSSGROUNDWEAPONSLEVEL1) {
             const { units, map, actions } = resources.get();
 
             const combatUnits = units.getCombatUnits();
@@ -83,13 +97,18 @@ const eightGateAllIn = createSystem({
     },
     async onUnitCreated({ resources }, newUnit) {
         const { actions, map } = resources.get();
-
+        console.log('unit created, getting updated strat');
+        db.getKey('strat', player).then(stratType => {
+            stratType = strats[stratType] || ZEALOT;
+            unitToTrain = stratType;
+            console.log(`strat updated to ${unitToTrain}...`);
+        });
         if (newUnit.isWorker()) {
             return actions.gather(newUnit);
         } else if (combatTypes.includes(newUnit.unitType)) {
             return actions.attackMove([newUnit], map.getCombatRally());
         }
     },
-});
+})};
 
 module.exports = eightGateAllIn;
