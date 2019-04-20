@@ -35,8 +35,7 @@ contract DaoDelianApp is CounterfactualApp  {
     uint256 turnNum;
     /// @dev setup is for matrix/array based games
     // Reflect the state structure defined in rules, array is used to be generic
-    uint256[] outcome;
-    uint256[] snapshot;
+    bytes[] snapshot;
   }
 
   struct Action {
@@ -84,6 +83,26 @@ contract DaoDelianApp is CounterfactualApp  {
     return keccak256(abi.encodePacked(num1 * num2));
   }
 
+  function getHashedValue(bytes32 _salt, string memory _value, address _sender) public pure returns (bytes32) {
+    return keccak256(abi.encodePacked(_value, _salt, _sender));
+  }
+
+  function getAbiEncodeAction(bytes32 _data) public pure returns (bytes memory) {
+    Action memory tmp;
+    tmp.actionType = ActionType.COMMIT_HASHED;
+    tmp.number = 1;
+    tmp.commitHash = _data;
+    return abi.encode(tmp);
+  }
+
+  function getAbiEncodeState(bytes[] memory _snapshot) public pure returns (bytes memory) {
+    AppState memory tmp;
+    tmp.stage = Stage.COMMITTING;
+    tmp.turnNum = 1;
+    tmp.snapshot = _snapshot;
+    return abi.encode(tmp);
+  }
+
   function isStateTerminal(bytes calldata encodedState)
     external
     pure
@@ -116,7 +135,8 @@ contract DaoDelianApp is CounterfactualApp  {
     AppState memory postState = abi.decode(encodedState, (AppState));
     Action memory action = abi.decode(encodedAction, (Action));
 
-    require(action.actionType == ActionType.COMMIT_HASHED);
+    require(action.commitHash != 0, "requires data");
+    require(action.actionType == ActionType.COMMIT_HASHED, "wrong action type");
 
     // TODO: Check that valid changes can occur!
     /* if (action.actionType == ActionType.PLAY) {
