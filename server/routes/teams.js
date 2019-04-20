@@ -10,17 +10,35 @@ module.exports = (router) => {
     if (!ctx.$.team) {
       ctx.throw('NotFound', 'Invalid team ID');
     }
+
+    ctx.$.teamMembers = await db.getIdsOfType('user', ctx.$.team.memberIds);
+
+    // TODO: keep track of games instead of filtering all of them
+    const allGames = await db.getAllOfType('game');
+    ctx.$.teamGames = _.filter(allGames, (g) => g.options.hostTeamId === teamId || g.options.opponentTeamId === teamId);
+
     return next();
   });
 
   router.get('/teams/:teamId', async (ctx, next) => {
-    ctx.body = ctx.$.team;
+    ctx.body = {
+      ...ctx.$.team,
+      games: ctx.$.teamGames,
+      members: ctx.$.teamMembers,
+      isJoinable: true,
+    };
+  });
+
+  router.get('/teams', async (ctx, next) => {
+    const teams = await db.getAllOfType('team');
+    ctx.body = teams;
   });
 
   router.post('/teams', loggedInOnly, async (ctx, next) => {
     ctx.$.team = {
       id: uuidv4(),
-      name: 'DAOlin Monks',
+      name: 'Your DAO team!',
+      memberIds: [ctx.$.authUser.address],
     };
 
     await db.setKey('team', ctx.$.team.id, ctx.$.team);
@@ -35,6 +53,20 @@ module.exports = (router) => {
 
     _.assign(ctx.$.team, ctx.request.body);
 
+    await db.setKey('team', ctx.$.team.id, ctx.$.team);
+
+    ctx.body = ctx.$.team;
+  });
+
+  router.post('/teams/:teamId/join', loggedInOnly, async (ctx, next) => {
+    ctx.$.team.memberIds = ctx.$.team.memberIds || [];
+
+    if (ctx.$.team.memberIds.includes(ctx.$.authUser.address)) {
+      ctx.throw('BadRequest', 'You are already on this team');
+    }
+
+    // TODO: check if any game is in progress - do not allow anyone to join
+    ctx.$.team.memberIds.push(ctx.$.authUser.address);
     await db.setKey('team', ctx.$.team.id, ctx.$.team);
 
     ctx.body = ctx.$.team;
