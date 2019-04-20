@@ -1,4 +1,6 @@
 const { createAgent, createEngine, createPlayer } = require('@node-sc2/core');
+const db = require('./redis');
+
 const { Difficulty, Race } = require('@node-sc2/core/constants/enums');
 const protossSupplySystem = require('@node-sc2/system-protoss-supply');
 const eightGateZAllIn = require('./eightzealot.js');
@@ -14,12 +16,11 @@ const startPort = process.argv[7];
 const ladderServer = process.argv[9];
 const opponentId = process.argv[11];
 
-const playerSpecs = {
-    '1': eightGateZAllIn,
-    '2': eightGateSAllIn
+const strats = {
+    zealot: eightGateZAllIn,
+    stalker: eightGateSAllIn
 };
 
-const strat = playerSpecs[player] || eightGateZAllIn;
 
 const global = {
     initialized: false,
@@ -39,17 +40,22 @@ const api = {
             console.log("server initialized")
         });
     },
-    joinGame: _ => {
+    joinGame: async _ => {
         if(global.initialized) {
-            console.log("running game...")
-            global.botA = createAgent();
-            global.botA.use(protossSupplySystem);
-            global.botA.use(strat);
-
-            return global.engine.runGame('Blueshift LE', [
-                createPlayer({ race: Race.PROTOSS }, global.botA),
-                createPlayer({ race: Race.RANDOM, difficulty: Difficulty.MEDIUM }),
-            ]);
+            console.log(`getting strat...`)
+            db.getKey('strat', player).then(stratType => {
+                const strat = strats[stratType] || strats.zealot;
+                console.log(`running game with strat ${stratType}...`)
+                
+                global.botA = createAgent();
+                global.botA.use(protossSupplySystem);
+                global.botA.use(strat);
+    
+                return global.engine.runGame('Blueshift LE', [
+                    createPlayer({ race: Race.PROTOSS }, global.botA),
+                    createPlayer({ race: Race.RANDOM, difficulty: Difficulty.MEDIUM }),
+                ]);
+            })
                 }
         else {
             throw new Error("server not initialized")
