@@ -1,7 +1,44 @@
+const _ = require('lodash');
 const crypto = require('crypto');
+
 const db = require('../lib/redis');
 const StateChannel = require('./stateChannel');
 const starcraft = require('./starcraft');
+
+
+function initGovState(team) {
+  if (team.strategy === 'dictatorship') {
+    if (team.substrategy === 'permanent') {
+      return { currentDictator: team.currentDictatorAddress };
+    } if (team.substrategy === 'rotating') {
+      return { currentDictator: _.sample(team.memberIds) };
+    }
+  } else if (team.strategy === 'democracy') {
+    if (team.substrategy === 'linear') {
+      // do nothing
+    } else if (team.substrategy === 'quadratic') {
+      // initialize voice points at 10 per member
+      // stored as array in same order as member ids
+      return {
+        voicePoints: _.times(team.memberIds, () => 10),
+      };
+    }
+  }
+}
+function initGameState(gameOptions) {
+  if (gameOptions.gameType === 'chess') {
+    return {
+      whosTurn: 0,
+      board: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+    };
+  }
+  if (gameOptions.gameType === 'sc2') {
+    return {
+      team0Strategy: 'zealot',
+      team1Strategy: 'zealot',
+    };
+  }
+}
 
 class Game {
   constructor(id) {
@@ -9,8 +46,70 @@ class Game {
     this.channelId = id || crypto.randomBytes(8).toString('hex');
   }
 
+
   async loadFromDb() {
-    return db.getKey('game', this.channelId);
+    const data = await db.getKey('game', this.channelId);
+
+    this._teams = [
+      await db.getKey('team', this.team1Id),
+      await db.getKey('team', this.team2Id),
+    ];
+
+    _.assign(this, data);
+    return data;
+  }
+
+  async save() {
+    await db.setKey('game', this.channelId, this);
+  }
+
+  setOptions(options) {
+    // team0id, team1id, gameType
+    _.assign(this, options);
+  }
+
+  beginGame() {
+    this.isStarted = true;
+
+    this.proposals = [[], []];
+    this.govState = [initGovState(this._teams[0]), initGovState(this._teams[1])];
+    this.gameState = initGameState(this.gameType);
+  }
+
+  addProposal(team, proposal) {
+    this.proposals[team].push(proposal);
+  }
+
+  voteOnProposal(team, userAddress, proposalIndex, numVotes = 1) {
+    const proposal = this.proposals[team][proposalIndex];
+    proposal.votes = proposal.votes || 0;
+    proposal.votes += numVotes;
+
+    if (
+      this._teams[team].strategy === 'democracy'
+      && this._teams[team].substrategy === 'quadratic'
+    ) {
+      const userIndex = _.findIndex(this._teams[team].memberIds, userAddress);
+      this.govState[team].voicePoints[userIndex] -= numVotes;
+    }
+  }
+
+  finalizeVotes(teamIndex) {
+    const winningProposal = _.maxBy(this.proposals[teamIndex], 'votes');
+    if (this.gameType === 'sc2') {
+      this.gameState[`team${teamIndex}strategy`] = winningProposal.strategy;
+    } else if (this.gameType === 'chess') {
+      this.gameState.board = winningProposal.board;
+      this.gameState.whosTurn = this.gameState.whosTurn === 0 ? 1 : 0;
+    }
+
+    // add more votes if quadratic
+    if (
+      this._teams[teamIndex].strategy === 'democracy'
+      && this._teams[teamIndex].substrategy === 'quadratic'
+    ) {
+      this.govState[teamIndex].voicePoints = _.map(this.govState[teamIndex].voicePoints, (numPoints) => numPoints + 10);
+    }
   }
 
   // Setup all variables needed

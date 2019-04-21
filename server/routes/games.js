@@ -1,3 +1,5 @@
+const _ = require('lodash');
+
 const db = require('../lib/redis');
 const Game = require('../modules/game');
 const { validate } = require('../lib/validate');
@@ -6,36 +8,34 @@ const { loggedInOnly } = require('../lib/auth');
 module.exports = (router) => {
   router.post('/games', loggedInOnly, async (ctx, next) => {
     validate(ctx.request.body, {
-      hostTeamId: { required: true },
-      opponentTeamId: { required: true },
+      team0id: { required: true },
+      team1id: { required: true },
       gameType: { isEnum: ['chess', 'sc2'], required: true },
     });
 
-    const hostTeam = await db.getKey('team', ctx.request.body.hostTeamId);
-    const opponentTeam = await db.getKey('team', ctx.request.body.opponentTeamId);
-    if (!hostTeam) ctx.throw('BadRequest', 'Invalid host team');
-    if (!opponentTeam) ctx.throw('BadRequest', 'Invalid opponent team id');
-    if (hostTeam.id === opponentTeam.id) ctx.throw('BadRequest', 'Team cannot play each other');
+    const team0 = await db.getKey('team', ctx.request.body.team0id);
+    const team1 = await db.getKey('team', ctx.request.body.team1id);
+    if (!team0) ctx.throw('BadRequest', 'Invalid host team');
+    if (!team1) ctx.throw('BadRequest', 'Invalid opponent team id');
+    if (team0.id === team1.id) ctx.throw('BadRequest', 'Team cannot play each other');
 
-    if (!hostTeam.memberIds.includes(ctx.$.authUser.address)) {
+    if (!team0.memberIds.includes(ctx.$.authUser.address)) {
       ctx.throw('Forbidden', 'You must be a team member to create a game');
     }
 
-    const gameInput = {
-      // Needs "contractAddress"
-      ...ctx.request.body,
-    };
-
     ctx.$.game = new Game();
-    ctx.$.game = await ctx.$.game.start(gameInput);
-    ctx.body = {
-      ...ctx.$.game,
-    };
+    ctx.$.game.setOptions(ctx.request.body);
+    await ctx.$.game.save();
+    ctx.body = ctx.$.game;
   });
 
   router.param('gameId', async (gameId, ctx, next) => {
     ctx.$.game = new Game(gameId);
     ctx.$.gameData = await ctx.$.game.loadFromDb();
+
+    ctx.$.team0 = await db.getKey('team', ctx.$.game.team0id);
+    ctx.$.team1 = await db.getKey('team', ctx.$.game.team1id);
+
     return next();
   });
 
@@ -46,7 +46,11 @@ module.exports = (router) => {
 
   router.get('/games/:gameId', async (ctx, next) => {
     console.log('ctx.$.game', ctx.$.game);
-    ctx.body = { ...ctx.$.gameData };
+    ctx.body = {
+      ...ctx.$.gameData,
+      team0: ctx.$.team0,
+      team1: ctx.$.team1,
+    };
   });
 
   router.post('/games/:gameId/proposals', async (ctx, next) => {
