@@ -3,7 +3,7 @@
   header.site-header
     login
     router-link.site-logo(to='/')
-      h1 DAO-vs-DAO
+      h1 🏅 DAO vs DAO
   .content
     slot
 </template>
@@ -35,26 +35,35 @@ export default {
 
 <style lang="less">
 body {
-  background: black;
+  background: #e2e2e2;
   position: relative;
+  font-family: Avenir, Futura, Helvetica, sans-serif;
 }
 .site-logo {
+  display: flex;
   text-decoration: none;
 }
 .layout {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  background: pink;
+  // background: pink;
   position: relative;
 }
 .site-header {
+  display: flex;
+  background: white;
+  justify-content: center;
+  height: 54px;
 
+  h1 {
+    margin: auto 10px;
+    padding: 0;
+  }
 }
 .content {
   flex: 1 0 0;
-  background: yellow;
-
+  background: rgba(37, 37, 37, 0.9);
 }
 
 

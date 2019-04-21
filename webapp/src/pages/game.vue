@@ -1,5 +1,7 @@
 <template lang='pug'>
 layout.game-page
+  div.backdrop
+    img(src='https://cdn.dribbble.com/users/329207/screenshots/4165459/2001_bemocs_space_park_cosmic_canyon_dribbble.jpg')
   template(v-if='!fetchGameRequest.wasRequested || !game.gameType')
     h1 Loading...
   template(v-else-if='fetchGameRequest.isError')

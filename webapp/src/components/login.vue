@@ -21,6 +21,12 @@
   div(v-else-if='getUserRequest.isPending')
     div Fetching user info...
 
+  // div(v-else-if='getUserRequest.isPendingOrEmpty')
+  //  button(@click='attemptLogin') Log In Using Metamask!
+
+  div(v-else-if='getUserRequest.isPendingOrEmpty')
+    router-link(to='/profile').button View Profile
+
   div(v-else-if='user.address')
     router-link(to='/profile') Logged in as {{ user.username }}
 
@@ -70,10 +76,20 @@ export default {
 
 <style lang="less">
 .login-wrapper {
+  top: 10px;
+  right: 10px;
   position: absolute;
-  top: 0;
-  right: 0;
-  height: 60px;
+
+  div {
+
+    button {
+      background: #8484c3;
+      color: white;
+      border: 0;
+      border-radius: 20px;
+      padding: 8px 15px;
+    }
+  }
 }
 
 .metamask-error-popup {
