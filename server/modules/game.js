@@ -35,8 +35,8 @@ function initGameState(gameType) {
   }
   if (gameType === 'sc2') {
     return {
-      team0Strategy: 'zealot',
-      team1Strategy: 'zealot',
+      team0strategy: 'zealot',
+      team1strategy: 'zealot',
     };
   }
 }
