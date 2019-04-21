@@ -7,7 +7,10 @@ We need to create a new class of tool to help us experiment with many types of i
 Our goal is to create a tool to help us rapidly evolve our coordinated intelligence.
  
 We've taken cues from research in AI to create a framework in which teams coordinate around a game environment. By focusing the teams on a clear set of rewards (winning the game), teams should be able to quickly test many different practical methods for coordinating intelligence. Winning strategies should be adapted for use by other teams; losing strategies should be revised or discarded.
- 
+
+### TLDR; View our visual walkthrough
+[Click here! ./docs/visual_walkthrough.md](./docs/visual_walkthrough.md)
+
 ## Our framework provides: 
  - A neutral state channel, powered by Counterfactual framework, which provides a mechanism to ensure that games are conducted according to their rules, and can also store stakes submitted by either team.
  - An API into an abstract game environment. Governance decisions created in our UI or in an external app are sent both to our state channel and the game engine.

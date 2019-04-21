@@ -72,5 +72,8 @@ export default {
 </script>
 
 <style lang='less'>
-
+.about-page .content {
+  background: #FAA233;
+  text-align: center;
+}
 </style>

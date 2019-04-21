@@ -64,7 +64,7 @@ class Game {
       '_teams', 'turnInterval', 'team0', 'team1',
     ]);
     console.log('----------------', toSave);
-    console.log({toSave})
+    console.log({ toSave });
     await db.setKey('game', this.channelId, toSave);
   }
 
@@ -121,10 +121,9 @@ class Game {
     } else if (this.gameType === 'sc2') {
       if (!proposal.strategy) throw new ApiError('BadRequest', 'Pick a strategy');
     }
-    console.log('pushing new prposal')
+    console.log('pushing new prposal');
     this.proposals[team].push(proposal);
-    console.log(this.proposals)
-
+    console.log(this.proposals);
   }
 
   voteOnProposal(team, userAddress, proposalId, numVotes = 1) {

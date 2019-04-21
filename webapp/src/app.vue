@@ -52,9 +52,9 @@ body {
   color: #2c3e50;
 }
 
-h1, h2 {
-  font-family: @fancy-font;
-}
+// h1, h2 {
+//   font-family: @fancy-font;
+// }
 h2 {
   font-weight: normal;
   font-size: 36px;

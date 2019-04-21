@@ -1,5 +1,7 @@
 <template lang='pug'>
 layout.game-detail
+  div.backdrop
+    img(src='https://cdn.dribbble.com/users/329207/screenshots/6220354/bemocs_geneseo_sailing.jpg')
   h1
     | Chess - {{ chessId }}
 
