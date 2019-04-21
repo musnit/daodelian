@@ -146,6 +146,7 @@ export default {
     teamId: String,
   },
   computed: {
+    ...mapGetters('statechannel', ['deployAddress']),
     GAME_LABELS: () => GAME_LABELS,
     ...mapGetters({
       storeTeam: 'team',
@@ -196,16 +197,19 @@ export default {
       // Initialize state channel then launch new game within DB
       const hostAddress = '';
       const opponentAddress = '';
-      await this.createStateChannel({ hostAddress, opponentAddress });
+      await this.createStateChannel({ team0: '', team1: '' });
+      console.log('contract', this.deployAddress);
 
-      // await this.$store.dispatchApiAction('CREATE_GAME', {
-      //   team0id: this.teamId,
-      //   ...this.createGamePayload,
-      // });
-      //
-      // if (this.createGameRequest.isSuccess) {
-      //   this.$router.push(`/game/${this.selectedGame.channelId}`);
-      // }
+      await this.$store.dispatchApiAction('CREATE_GAME', {
+        team0id: this.teamId,
+        contractAddress: this.deployAddress,
+        ...this.createGamePayload,
+      });
+      console.log('this.createGameRequest', this.createGameRequest);
+
+      if (this.createGameRequest.isSuccess) {
+        this.$router.push(`/game/${this.selectedGame.channelId}`);
+      }
     },
   },
   mounted() {

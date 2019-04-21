@@ -16,7 +16,7 @@ const stateChannelModule = {
     deployAddress: state => state.deployAddress,
   },
   actions: {
-    async createStateChannel(ctx, { hostAddress, opponentAddress }) {
+    async createStateChannel(ctx, { team0, team1 }) {
       const rootWeb3 = window.web3;
       const rootUser = window.web3.givenProvider.selectedAddress;
       const from = rootUser || null;
@@ -25,19 +25,20 @@ const stateChannelModule = {
       const contract = rootWeb3.eth.Contract(sc.abi);
       console.log('sc', sc);
 
-      await contract.deploy({
+      contract.deploy({
         data: sc.bytecodeInstance,
         // TODO: the two participant address here
-        // arguments: [hostAddress, opponentAddress]
+        // arguments: [team0, team1]
         arguments: [],
       })
         .send({
           from,
-          gas: 1500000,
-          gasPrice: '30000000000000',
+          gas: window.web3.eth.defaultGas || 1500000,
+          gasPrice: window.web3.eth.defaultGasPrice || '30000000000',
         }, (error, transactionHash) => {
           ctx.commit('UPDATE', { key: 'deployState', value: 'error' });
           ctx.commit('UPDATE', { key: 'deployTxn', value: transactionHash });
+          console.log('transactionHash', transactionHash);
         })
         .on('error', (error) => {
           ctx.commit('UPDATE', { key: 'deployState', value: 'error' });
@@ -45,6 +46,7 @@ const stateChannelModule = {
         .on('transactionHash', (transactionHash) => {
           ctx.commit('UPDATE', { key: 'deployState', value: 'txn' });
           ctx.commit('UPDATE', { key: 'deployTxn', value: transactionHash });
+          console.log('transactionHash', transactionHash);
         })
         .on('receipt', (receipt) => {
           console.log(receipt.contractAddress); // contains the new contract address
@@ -56,6 +58,7 @@ const stateChannelModule = {
           console.log(newContractInstance.options.address); // instance with the new contract address
           ctx.commit('UPDATE', { key: 'deployState', value: 'newContract' });
           ctx.commit('UPDATE', { key: 'deployAddress', value: newContractInstance.options.address });
+          console.log('newContractInstance', newContractInstance);
         });
     },
   },
