@@ -79,8 +79,8 @@ class Game {
 
 
     if (teamNumber !== null) {
-      serialized.govState = this.govState[teamNumber];
-      serialized.proposals = this.proposals[teamNumber];
+      serialized.govState = this.govState && this.govState[teamNumber];
+      serialized.proposals = this.proposals && this.proposals[teamNumber];
     }
     return serialized;
   }
@@ -138,7 +138,16 @@ class Game {
   }
 
   async finalizeVotes() {
+    console.log("HEY1")
+
+    if(!this.isStarted){
+      return
+    }
+    console.log("HEY2")
+
     if (this.gameType === 'sc2') {
+      console.log("HEY23")
+
       this.finalizeVotesForTeam(0);
       this.finalizeVotesForTeam(1);
     } else {
@@ -148,11 +157,17 @@ class Game {
   }
 
   finalizeVotesForTeam(teamIndex) {
+    console.log("HEY4")
     const winningProposal = _.maxBy(this.proposals[teamIndex], 'votes');
+    console.log(this.proposals)
+    console.log({winningProposal})
+
     if (this.gameType === 'sc2') {
       if (winningProposal) {
+        console.log("HEY45")
+
         this.gameState[`team${teamIndex}strategy`] = winningProposal.strategy;
-        db.setKey('strat', teamIndex, winningProposal.strategy);
+        db.setKey('strat', teamIndex+1, winningProposal.strategy);
       }
     } else if (this.gameType === 'chess') {
       this.gameState.board = winningProposal.board;
