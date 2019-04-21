@@ -2,7 +2,7 @@ const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
 
 function log(toLog) {
-  console.log(toLog);
+  // console.log(toLog);
 }
 
 module.exports.middleware = async (ctx, next) => {

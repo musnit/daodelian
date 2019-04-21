@@ -36,7 +36,7 @@ module.exports = (router) => {
     await ctx.$.game.loadFromDb();
     if (ctx.$.authUser) {
       ctx.$.userTeam = ctx.$.game.getTeam(ctx.$.authUser.address);
-      console.log(`user is on team ${ctx.$.userTeam}`);
+      // console.log(`user is on team ${ctx.$.userTeam}`);
     }
 
     return next();
@@ -48,8 +48,8 @@ module.exports = (router) => {
   });
 
   router.get('/games/:gameId', async (ctx, next) => {
-    console.log('ctx.$.game', ctx.$.game);
-    console.log(ctx.$.game);
+    // console.log('ctx.$.game', ctx.$.game);
+    // console.log(ctx.$.game);
     ctx.body = ctx.$.game.serializeForUser(_.get(ctx.$.authUser, 'address'));
   });
 

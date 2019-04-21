@@ -27,13 +27,6 @@ layout.game-page
               span {{item.name}}
         .voting-area
           h3 Vote
-          div(v-if='game.gameType === "chess"').voting-divs
-            div(
-              v-for="item in chessProposals"
-            ).sc2-proposal
-              span(v-if='item.move') {{JSON.stringify(item.move)}}
-              button(@click.prevent='voteFor(item)') Vote
-
           div(v-else-if='')
             div(v-for='p in game.proposals')
               v-button(@click='voteForProposal(p.id)')
@@ -51,9 +44,9 @@ layout.game-page
           v-button(@click='beginGameButtonHandler') Begin the game
         template(v-else)
           template(v-if='game.gameType === "chess"')
+            #board
             .whos-turn
               | Turn: {{ game['team'+game.gameState.whosTurn].name }}
-            #board
 
           template(v-else-if='game.gameType === "sc2"')
             iframe(
@@ -156,6 +149,7 @@ export default {
     sc2Proposals: [],
     chessProposals: [],
     sc2Lookup,
+    firstTime: true,
   }),
   props: {
     gameId: String,
@@ -191,6 +185,15 @@ export default {
         }, 200);
       }
     },
+    'game.gameState': {
+      deep: true,
+      handler() {
+        if (this.board) {
+          console.log(this.game.gameState.boardState);
+          this.board = window.ChessBoard('board', Object.assign({}, this.draggableCfg, { position: this.game.gameState.boardState }));
+        }
+      },
+    },
   },
   methods: {
     beginGameButtonHandler() {
@@ -198,6 +201,9 @@ export default {
     },
     async createStarcraftProposal(strategy) {
       await this.$store.dispatchApiAction('CREATE_PROPOSAL', { strategy });
+    },
+    async createChessProposal(move, boardState) {
+      await this.$store.dispatchApiAction('CREATE_PROPOSAL', { move, boardState });
     },
     async voteForProposal(proposalId) {
       await this.$store.dispatchApiAction('VOTE_FOR_PROPOSAL', {
@@ -213,13 +219,17 @@ export default {
       const newProposal = { strategy: item.id };
       this.sc2Proposals.push(newProposal);
     },
-    async submitChessAction(move) {
-      this.chessProposals.push({ move });
+    async submitChessAction(move, board) {
+      this.createChessProposal(move, board);
     },
     voteFor(item) {
       window.api.post(`/sc2/strat/${this.flip}/${item.strategy}`);
     },
     initChessGame() {
+      if (!this.firstTime) {
+        return;
+      }
+      this.firstTime = false;
       this.chessLogic = new Chess();
       const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
         const gameMove = this.chessLogic.move({
@@ -254,7 +264,6 @@ export default {
         position: 'start',
         onDrop,
       };
-
       this.board = window.ChessBoard('board', this.draggableCfg);
     },
     chessInteraction(move, newPos) {
@@ -263,8 +272,9 @@ export default {
       this.proposingMoveTarget = move.target;
 
       // disable proposing
-      this.board = window.ChessBoard('board', this.notDraggableCfg);
-      this.submitChessAction(move);
+      //  this.board = window.ChessBoard('board', this.notDraggableCfg);
+      const boardState = this.chessLogic.fen();
+      this.submitChessAction(move, boardState);
     },
 
   },

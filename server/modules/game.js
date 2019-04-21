@@ -30,7 +30,7 @@ function initGameState(gameType) {
   if (gameType === 'chess') {
     return {
       whosTurn: 0,
-      board: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
+      boardState: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     };
   }
   if (gameType === 'sc2') {
@@ -64,6 +64,7 @@ class Game {
       '_teams', 'turnInterval', 'team0', 'team1',
     ]);
     console.log('----------------', toSave);
+    console.log({toSave})
     await db.setKey('game', this.channelId, toSave);
   }
 
@@ -86,7 +87,7 @@ class Game {
   }
 
   getTeam(address) {
-    console.log(this._teams);
+    // console.log(this._teams);
     if (this._teams[0].memberIds.includes(address)) return 0;
     if (this._teams[1].memberIds.includes(address)) return 1;
     return null;
@@ -120,7 +121,10 @@ class Game {
     } else if (this.gameType === 'sc2') {
       if (!proposal.strategy) throw new ApiError('BadRequest', 'Pick a strategy');
     }
+    console.log('pushing new prposal')
     this.proposals[team].push(proposal);
+    console.log(this.proposals)
+
   }
 
   voteOnProposal(team, userAddress, proposalId, numVotes = 1) {
@@ -139,6 +143,7 @@ class Game {
 
   async finalizeVotes() {
     console.log("HEY1")
+    await this.loadFromDb();
 
     if(!this.isStarted){
       return
@@ -170,8 +175,9 @@ class Game {
         db.setKey('strat', teamIndex+1, winningProposal.strategy);
       }
     } else if (this.gameType === 'chess') {
-      this.gameState.board = winningProposal.board;
+      this.gameState.boardState = winningProposal && winningProposal.boardState;
       this.gameState.whosTurn = this.gameState.whosTurn === 0 ? 1 : 0;
+      this.proposals[teamIndex] = [];
     }
 
     // add more votes if quadratic
