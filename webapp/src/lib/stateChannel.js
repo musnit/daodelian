@@ -1,11 +1,9 @@
-const path = require('path');
+// const path = require('path');
 
 const appName = 'DaoDelianApp';
 
-function getAbi(name) {
-  /* eslint-disable import/no-dynamic-require */
-  const filePath = path.join('@', 'statechannels', 'build', 'contracts', `${name}.json`);
-  const abi = require(filePath);
+function getAbi() {
+  const abi = require('../../public/build/contracts/DaoDelianApp.json');
   return abi;
 }
 

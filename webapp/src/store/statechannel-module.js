@@ -19,18 +19,17 @@ const stateChannelModule = {
     async createStateChannel(ctx, { hostAddress, opponentAddress }) {
       const rootWeb3 = window.web3;
       const rootUser = window.web3.givenProvider.selectedAddress;
-      // console.log('window.web3', window.web3);
-      console.log('rootUser', rootUser);
       const from = rootUser || null;
       if (!from) return;
       const sc = new StateChannel.StateChannel();
-      const contract = rootWeb3.eth.Contract(sc.abi.abi);
+      const contract = rootWeb3.eth.Contract(sc.abi);
       console.log('sc', sc);
 
       await contract.deploy({
-        data: sc.bytecode,
+        data: sc.bytecodeInstance,
         // TODO: the two participant address here
         // arguments: [hostAddress, opponentAddress]
+        arguments: [],
       })
         .send({
           from,
