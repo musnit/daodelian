@@ -82,12 +82,14 @@ export default {
 
   div {
 
-    button {
+    button,
+    .button {
       background: #8484c3;
       color: white;
       border: 0;
       border-radius: 20px;
       padding: 8px 15px;
+      text-decoration: none;
     }
   }
 }

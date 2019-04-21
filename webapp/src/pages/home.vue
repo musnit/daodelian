@@ -7,8 +7,9 @@
       small No Teams Found
     div(v-else-if='getTeamsRequest.isError')
       small No Teams Found
-    div(v-else)
-      v-button(@click='addTeamButtonHandler') Create a new team
+    div(v-else).team-edit
+      v-button(@click='addTeamButtonHandler').orange Create a new team
+      h3 Current Teams
       ul
         li(v-for='t in teams')
           router-link(:to='`/team/${t.id}`') {{ t.name }}
@@ -66,4 +67,42 @@ export default {
   }
 }
 
+ul {
+  margin: 0;
+  padding: 0;
+
+  li {
+    list-style: none;
+    padding: 0;
+  }
+}
+
+.team-edit {
+  display: flex;
+  flex-direction: column;
+
+  button.orange {
+    background: #F65E25;
+    border-radius: 25px;
+    display: block;
+    margin: 10px auto;
+  }
+
+  h3 {
+    margin: 40px 0 0;
+  }
+
+  ul {
+    width: 320px;
+    margin: 10px auto 40px;
+  }
+
+  li a {
+    background: white;
+    border-radius: 4px;
+    display: block;
+    padding: 10px;
+    margin: 2px 0px;
+  }
+}
 </style>
