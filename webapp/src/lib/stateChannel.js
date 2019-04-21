@@ -1,35 +1,36 @@
-const path = require('path')
-const web3 = require('path')
+const path = require('path');
 
-const appName = 'DaoDelianApp'
+const appName = 'DaoDelianApp';
 
 function getAbi(name) {
-  const abi = require(path.join(__dirname, 'build', 'contracts', name, '.json'))
-  return abi
+  /* eslint-disable import/no-dynamic-require */
+  const filePath = path.join('@', 'statechannels', 'build', 'contracts', `${name}.json`);
+  const abi = require(filePath);
+  return abi;
 }
 
 function getBytecode(name) {
-  const abi = getAbi(name)
-  return abi.bytecode
+  const abi = getAbi(name);
+  return abi.bytecode;
 }
 
 class StateChannel {
-  constructor(channelId) {
-    this.channelId = channelId
-    this.bytecodeInstance = getBytecode(appName)
-    console.log('DaoDelianApp', this.bytecodeInstance)
-    return this
+  constructor() {
+    this.abi = getAbi(appName).abi;
+    this.bytecodeInstance = getBytecode(appName);
+    console.log('DaoDelianApp', this.bytecodeInstance);
+    return this;
   }
 
   getAbi() {
-    return getAbi(appName)
+    return this.abi;
   }
 
   getBytecode() {
-    return getBytecode(appName)
+    return this.bytecodeInstance;
   }
 
   // TODO: Methods for salt, hash, and commit
 }
 
-export StateChannel;
+export default { StateChannel };

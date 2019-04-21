@@ -1,5 +1,5 @@
 <template lang='pug'>
-layout.team-page
+.layout.team-page
   template(v-if='getTeamRequest.isPendingOrEmpty')
     h1 Loading...
   template(v-else-if='getTeamRequest.isError')
@@ -121,7 +121,7 @@ layout.team-page
 
 <script>
 import _ from 'lodash';
-import { mapState, mapGetters } from 'vuex';
+import { mapState, mapGetters, mapActions } from 'vuex';
 
 import { mapRequestStatuses } from '@/lib/vuex-api';
 import { vuelidateGroupMixin } from '@/lib/vuelidate-group';
@@ -184,6 +184,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions('statechannel', ['createStateChannel']),
     getTeamName(id) { return _.find(this.teams, { id }).name; },
     saveButtonHandler() {
       if (this.$hasError()) return;
@@ -193,14 +194,19 @@ export default {
       this.$store.dispatchApiAction('JOIN_TEAM', this.team);
     },
     async createGameButtonHandler() {
-      await this.$store.dispatchApiAction('CREATE_GAME', {
-        team0id: this.teamId,
-        ...this.createGamePayload,
-      });
+      // Initialize state channel then launch new game within DB
+      const hostAddress = '';
+      const opponentAddress = '';
+      await this.createStateChannel({ hostAddress, opponentAddress });
 
-      if (this.createGameRequest.isSuccess) {
-        this.$router.push(`/game/${this.selectedGame.channelId}`);
-      }
+      // await this.$store.dispatchApiAction('CREATE_GAME', {
+      //   team0id: this.teamId,
+      //   ...this.createGamePayload,
+      // });
+      //
+      // if (this.createGameRequest.isSuccess) {
+      //   this.$router.push(`/game/${this.selectedGame.channelId}`);
+      // }
     },
   },
   mounted() {

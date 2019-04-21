@@ -22,7 +22,7 @@
     div Fetching user info...
 
   div(v-else-if='user.address')
-    router-link(to='/account') Logged in as {{ user.username }}
+    router-link(to='/profile') Logged in as {{ user.username }}
 
 
 </template>

@@ -1,5 +1,5 @@
 <template lang='pug'>
-layout.about-page
+.layout.about-page
   h1 Your Profile
 
   template(v-if='!isUserLoggedIn')

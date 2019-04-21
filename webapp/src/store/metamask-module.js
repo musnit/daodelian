@@ -40,7 +40,7 @@ export default {
         // Request account access if needed
         try {
           await window.ethereum.enable();
-          ctx.dispatch('setRootWebThree', window.ethereum, { root: true });
+          // ctx.dispatch('setRootWebThree', window.web3, { root: true });
         } catch (error) { // User denied account access...
           ctx.commit('UPDATE_ERROR', 'DENIED_ACCESS');
           return;

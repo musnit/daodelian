@@ -1,5 +1,5 @@
 <template lang='pug'>
-layout.game-page
+.layout.game-page
   template(v-if='fetchGameRequest.isPendingOrEmpty')
     h1 Loading...
   template(v-else-if='fetchGameRequest.isError')

@@ -1,5 +1,5 @@
 <template lang='pug'>
-layout.not-found-page(
+.layout.not-found-page(
 )
   h1 NOT FOUND!
 

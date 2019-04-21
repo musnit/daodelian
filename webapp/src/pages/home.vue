@@ -1,5 +1,5 @@
 <template lang='pug'>
-  layout.home-page
+  .layout.home-page
 
     h2 Teams
     div(v-if='getTeamsRequest.isPendingOrEmpty')
