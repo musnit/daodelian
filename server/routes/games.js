@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const uuidv4 = require('uuid/v4');
+const { spawn } = require('child_process');
 
 const db = require('../lib/redis');
 const Game = require('../modules/game');
@@ -57,6 +58,9 @@ module.exports = (router) => {
     //   ctx.throw('Conflict', 'Game has already started');
     // }
     ctx.$.game.beginGame();
+    if(ctx.$.game.gameType === 'sc2') {
+      startSC2Game();
+    }
     await ctx.$.game.save();
     ctx.body = ctx.$.game.serializeForUser(_.get(ctx.$.authUser, 'address'));
   });
@@ -107,3 +111,21 @@ module.exports = (router) => {
     };
   });
 };
+
+
+function startSC2Game() {
+  const cmd = spawn('cmd.exe', ['/c', 'Sc2LadderServer.exe']);
+  cmd.stdout.on('data', (data) => {
+    console.log(data.toString());
+  });
+
+  cmd.stderr.on('data', (data) => {
+    console.log(data.toString());
+  });
+
+  cmd.on('exit', (code) => {
+    console.log(`Child exited with code ${code}`);
+    runningGame = null;
+  });
+  runningGame = cmd;
+}

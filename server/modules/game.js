@@ -152,6 +152,7 @@ class Game {
     if (this.gameType === 'sc2') {
       if (winningProposal) {
         this.gameState[`team${teamIndex}strategy`] = winningProposal.strategy;
+        db.setKey('strat', teamIndex, winningProposal.strategy);
       }
     } else if (this.gameType === 'chess') {
       this.gameState.board = winningProposal.board;
