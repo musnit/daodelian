@@ -7,6 +7,7 @@ import ProfilePage from './pages/profile.vue';
 import StarcraftPage from './pages/starcraft-id.vue';
 import ChessPage from './pages/chess-id.vue';
 import TeamPage from './pages/team.vue';
+import GamePage from './pages/game.vue';
 import NotFoundPage from './pages/404.vue';
 
 Vue.use(Router);
@@ -24,6 +25,9 @@ export default new Router({
     { path: '/profile', name: 'profile', component: ProfilePage },
     {
       path: '/team/:teamId', name: 'team', component: TeamPage, props: true,
+    },
+    {
+      path: '/game/:gameId', name: 'game', component: GamePage, props: true,
     },
     {
       path: '/starcraft/:scId', name: 'starcraft', component: StarcraftPage, props: true,

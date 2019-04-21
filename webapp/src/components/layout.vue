@@ -1,12 +1,11 @@
 <template lang='pug'>
 .layout.theme-page-bg
-  header
+  header.site-header
     login
     router-link.site-logo(to='/')
       h1 DAO-vs-DAO
-  slot
-  footer
-    p this is the footer
+  .content
+    slot
 </template>
 
 <script>
@@ -39,8 +38,27 @@ export default {
 </script>
 
 <style lang="less">
+body {
+  background: black;
+  position: relative;
+}
 .site-logo {
   text-decoration: none;
+}
+.layout {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: pink;
+  position: relative;
+}
+.site-header {
+
+}
+.content {
+  flex: 1 0 0;
+  background: yellow;
+
 }
 
 

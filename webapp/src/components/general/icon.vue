@@ -18,8 +18,8 @@ font-awesome-icon.icon(
 // import 'vue-awesome/icons/arrow-left';
 // import 'vue-awesome/icons/arrow-circle-right';
 // import 'vue-awesome/icons/arrow-circle-left';
-// import 'vue-awesome/icons/exclamation-circle';
-// import 'vue-awesome/icons/exclamation-triangle';
+import 'vue-awesome/icons/exclamation-circle';
+import 'vue-awesome/icons/exclamation-triangle';
 // import 'vue-awesome/icons/phone';
 // import 'vue-awesome/icons/info-circle';
 // import 'vue-awesome/icons/external-link';
@@ -29,7 +29,7 @@ font-awesome-icon.icon(
 // import 'vue-awesome/icons/plus';
 // import 'vue-awesome/icons/plus-circle';
 // import 'vue-awesome/icons/minus-circle';
-// import 'vue-awesome/icons/spinner';
+import 'vue-awesome/icons/spinner';
 // import 'vue-awesome/icons/search';
 // import 'vue-awesome/icons/trash';
 // import 'vue-awesome/icons/bars';

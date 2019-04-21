@@ -12,10 +12,20 @@ const gameModule = {
     game: state => state.game,
   },
   ...buildApiActions({
-    FETCH_GAME: {
+    CREATE_GAME: {
       action: (ctx, payload) => ({
+        method: 'post',
+        url: '/games',
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'game', response);
+      },
+    },
+    FETCH_GAME: {
+      action: (ctx, gameId) => ({
         method: 'get',
-        url: `/games/${payload.id}`,
+        url: `/games/${gameId}`,
       }),
       mutation: (state, { response }) => {
         Vue.set(state, 'game', response);
@@ -76,15 +86,8 @@ const gameModule = {
     },
   }, {
     actions: {
-      LOGOUT(ctx) {
-        ctx.commit('LOGOUT');
-        ctx.dispatch('clearMetamaskAuth');
-      },
     },
     mutations: {
-      LOGOUT(state) {
-        state.user = {};
-      },
     },
   }),
 };
