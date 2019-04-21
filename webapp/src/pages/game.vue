@@ -27,13 +27,16 @@ layout.game-page
               span {{item.name}}
         .voting-area
           h3 Vote
-          div(v-if='game.gameType === "chess"')
+          div(v-if='game.gameType === "chess"').voting-divs
 
           div(v-else-if='')
             div(v-for='p in game.proposals')
               v-button(@click='voteForProposal(p.id)')
                 span(v-if='game.gameType === "sc2"')
-                  | New unit strategy - {{ p.strategy }}
+                  .sc2-proposal
+                  img(:src='sc2Lookup[p.strategy].src' v-if='sc2Lookup[p.strategy]')
+                  span(v-if='sc2Lookup[p.strategy]') {{sc2Lookup[p.strategy].name}}
+                  Vote
                 span(v-if='game.gameType === "chess"')
                   | Move - {{ p.move }}
                 span.numvotes - {{ p.votes || 0 }}
@@ -73,6 +76,7 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import $ from 'jquery';
 import ChessBoard from '@/lib/chessboard-0.3.0';
+import Chess from 'chess.js';
 
 import { mapRequestStatuses } from '@/lib/vuex-api';
 import { vuelidateGroupMixin } from '@/lib/vuelidate-group';
@@ -107,6 +111,30 @@ const sc2Buttons = [
     src: require('@/assets/images/adept.jpg'),
   },
 ];
+
+const sc2Lookup = {
+  zealot: {
+    id: 'zealot',
+    name: 'Zealot',
+    src: require('@/assets/images/zealot.jpg'),
+  },
+  stalker: {
+    id: 'stalker',
+    name: 'Stalker',
+    src: require('@/assets/images/stalker.jpg'),
+  },
+  sentry: {
+    id: 'sentry',
+    name: 'Sentry',
+    src: require('@/assets/images/sentry.jpg'),
+  },
+  adept: {
+    id: 'adept',
+    name: 'Adept',
+    src: require('@/assets/images/adept.jpg'),
+  },
+};
+
 export default {
   components,
   mixins: [vuelidateGroupMixin],
@@ -120,6 +148,9 @@ export default {
     team: {},
     createGamePayload: {},
     sc2Buttons,
+    proposingMoveSource: null,
+    sc2Proposals: [],
+    sc2Lookup,
   }),
   props: {
     gameId: String,
@@ -138,7 +169,14 @@ export default {
     createOrUpdateTeamRequest() {
       return this.team.id ? this.updateTeamRequest : this.createTeamRequest;
     },
+    themeStyles() {
+      // css that gets injected into the head
+      if (this.proposingMoveSource) {
+        return `.square-${this.proposingMoveSource} {background: yellow !important;} .square-${this.proposingMoveTarget} {background: yellow !important;}`;
+      }
 
+      return '';
+    },
   },
   watch: {
     game() {
@@ -167,14 +205,34 @@ export default {
       // TODO: Set player based on idx from participant array
       const player = this.flip === 1 ? 2 : 1;
       this.flip = player;
-      window.api.post(`/sc2/strat/${this.flip}/${item.id}`);
+      const newProposal = { strategy: item.id };
+      this.sc2Proposals.push(newProposal);
+    },
+    voteFor(item) {
+      window.api.post(`/sc2/strat/${this.flip}/${item.strategy}`);
     },
     initChessGame() {
+      this.chessLogic = new Chess();
       const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
+        const gameMove = this.chessLogic.move({
+          from: source,
+          to: target,
+          promotion: 'q',
+        });
+        if (gameMove === null) { return 'snapback'; }
+
         console.log(source, target, piece, newPos, oldPos, orientation);
         const move = { source, target };
         this.chessInteraction(move, newPos);
         return 'snapback';
+      };
+      const onDragStart = function (source, piece, position, orientation) {
+      /*     if (this.chessLogic.gameOver() === true ||
+        (this.chessLogic.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (this.chessLogic.turn() === 'b' && piece.search(/^w/) !== -1) ||
+        (this.chessLogic.turn() !== side.charAt(0))) {
+        return false;
+      } */
       };
       this.draggableCfg = {
         draggable: true,
@@ -253,6 +311,37 @@ export default {
     font-weight: bold;
     height: 108px;
     margin: 5px;
+}
+
+.voting-divs {
+    border-bottom: 2px solid;
+    font-weight: bold;
+    color: wheat;
+}
+
+.sc2-proposal {
+    width: calc(100% - 2px);
+    display: flex;
+    align-items: center;
+    border: 2px solid;
+    font-weight: bold;
+    color: wheat;
+    border-bottom: none;
+    justify-content: space-between;
+
+  img {
+    padding-right: 5px;
+  }
+
+  button {
+    margin-right: 20px;
+    background: wheat;
+    border: none;
+    color: #551a8a;
+    background: #fcff00;
+    font-weight: bold;
+    font-size: 26px;
+  }
 }
 
 #board {
