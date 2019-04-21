@@ -25,6 +25,8 @@ contract DaoDelianApp is CounterfactualApp  {
     DONE
   }
 
+  address[] participants;
+
   struct AppState {
     address[] participants;
     address validationContract;
@@ -50,8 +52,9 @@ contract DaoDelianApp is CounterfactualApp  {
 
   address public owner;
 
-  constructor() public {
+  constructor(address[] memory _participants) public {
     owner = msg.sender;
+    participants = _participants;
   }
 
   function initialize(
