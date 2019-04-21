@@ -18,7 +18,13 @@ layout.game-page
           div(v-if='game.gameType === "chess"')
             | Propose a move by dragging the piece on the chessboard
           div(v-else-if='game.gameType === "sc2"')
-            | starcraft controls
+            div Select primary unit for strategy
+            button(
+              v-for="item in sc2Buttons"
+              @click.prevent='submitAction(item)'
+            ).sc2-button
+              img(:src='item.src')
+              span {{item.name}}
         .voting-area
           h3 Vote
           div(v-if='game.gameType === "chess"')
@@ -68,6 +74,29 @@ const GAME_LABELS = {
   sc2: 'Starcraft 2',
 };
 
+const sc2Buttons = [
+  {
+    id: 'zealot',
+    name: 'Zealot',
+    src: require('@/assets/images/zealot.jpg'),
+  },
+  {
+    id: 'stalker',
+    name: 'Stalker',
+    src: require('@/assets/images/stalker.jpg'),
+  },
+  {
+    id: 'sentry',
+    name: 'Sentry',
+    src: require('@/assets/images/sentry.jpg'),
+  },
+  {
+    id: 'adept',
+    name: 'Adept',
+    src: require('@/assets/images/adept.jpg'),
+  },
+];
+
 export default {
   components,
   mixins: [vuelidateGroupMixin],
@@ -82,6 +111,7 @@ export default {
     createGamePayload: {},
     gameLogic: {},
     proposingMoveSource: null,
+    sc2Buttons,
   }),
   props: {
     gameId: String,
@@ -216,4 +246,12 @@ export default {
   max-width: 500px;
 }
 
+.sc2-button {
+    padding: 0px;
+    width: 88px;
+    font-style: normal;
+    font-weight: bold;
+    height: 108px;
+    margin: 5px;
+}
 </style>
