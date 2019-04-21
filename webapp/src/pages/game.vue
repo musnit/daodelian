@@ -54,6 +54,7 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import $ from 'jquery';
 import ChessBoard from '@/lib/chessboard-0.3.0';
+import Chess from 'chess.js';
 
 import { mapRequestStatuses } from '@/lib/vuex-api';
 import { vuelidateGroupMixin } from '@/lib/vuelidate-group';
@@ -79,6 +80,8 @@ export default {
   data: () => ({
     team: {},
     createGamePayload: {},
+    gameLogic: {},
+    proposingMoveSource: null,
   }),
   props: {
     gameId: String,
@@ -97,17 +100,42 @@ export default {
     createOrUpdateTeamRequest() {
       return this.team.id ? this.updateTeamRequest : this.createTeamRequest;
     },
+    themeStyles() {
+      // css that gets injected into the head
+      if (this.proposingMoveSource) {
+        return `.square-${this.proposingMoveSource} {background: yellow !important;} .square-${this.proposingMoveTarget} {background: yellow !important;}`;
+      }
+
+      return '';
+    },
 
   },
   watch: {
   },
   methods: {
     initChessGame() {
+      this.gameLogic = new Chess();
+
       const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
+        const gameMove = this.gameLogic.move({
+          from: source,
+          to: target,
+          promotion: 'q',
+        });
+        if (gameMove === null) { return 'snapback'; }
+
         console.log(source, target, piece, newPos, oldPos, orientation);
         const move = { source, target };
         this.chessInteraction(move, newPos);
         return 'snapback';
+      };
+      const onDragStart = function (source, piece, position, orientation) {
+      /*     if (this.gameLogic.gameOver() === true ||
+        (this.gameLogic.turn() === 'w' && piece.search(/^b/) !== -1) ||
+        (this.gameLogic.turn() === 'b' && piece.search(/^w/) !== -1) ||
+        (this.gameLogic.turn() !== side.charAt(0))) {
+        return false;
+      } */
       };
       this.draggableCfg = {
         draggable: true,
@@ -132,7 +160,10 @@ export default {
       // disable proposing
       this.board = window.ChessBoard('board', this.notDraggableCfg);
     },
-
+    moveReceived(move) {
+      // TODO: this.board.move(move)
+      // TODO: re-enable proposing if my turn again
+    },
   },
   async mounted() {
     window.$ = $;
