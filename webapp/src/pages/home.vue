@@ -1,16 +1,38 @@
 <template lang='pug'>
   layout.home-page
 
+    h2 Teams
+    div(v-if='getTeamsRequest.isPendingOrEmpty')
+    div(v-else-if='getTeamsRequest.isError')
+    div(v-else)
+      ul
+        li(v-for='t in teams')
+          router-link(:to='`/team/${t.id}`') {{ t.name }}
+
 </template>
 
 <script>
+import { mapState, mapGetters } from 'vuex';
+
+import { mapRequestStatuses } from '@/lib/vuex-api';
+
 const components = {
   layout: require('@/components/layout').default,
 };
 
+
 export default {
   components,
   metaInfo: {
+  },
+  computed: {
+    ...mapGetters(['teams']),
+    ...mapRequestStatuses({
+      getTeamsRequest: 'GET_ALL_TEAMS',
+    }),
+  },
+  mounted() {
+    this.$store.dispatchApiAction('GET_ALL_TEAMS');
   },
 };
 </script>

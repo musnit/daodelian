@@ -15,7 +15,7 @@ module.exports = (router) => {
 
     // TODO: keep track of games instead of filtering all of them
     const allGames = await db.getAllOfType('game');
-    ctx.$.teamGames = _.filter(allGames, (g) => g.options.hostTeamId === teamId || g.options.opponentTeamId === teamId);
+    ctx.$.teamGames = _.filter(allGames, (g) => g.team0id === teamId || g.team1id === teamId);
 
     return next();
   });

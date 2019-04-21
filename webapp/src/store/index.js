@@ -1,3 +1,4 @@
+import _ from 'lodash';
 import Vue from 'vue';
 import Vuex from 'vuex';
 
@@ -14,12 +15,19 @@ const store = initializeStore({
     game: {},
     team: {},
     web3instance: null,
+
+    // listing lots of
+    teams: {},
   },
   getters: {
     isUserLoggedIn(state, getters) {
       return getters.authUserAddress && getters.authUserSignedMessage && state.user.address;
     },
-    user: state => state.user,
+    user(state) { return state.user; },
+    team(state) { return state.team; },
+
+    teams(state) { return _.values(state.teams); },
+    teamsById: state => state.teams,
     web3instance: state => state.web3instance,
   },
   ...buildApiActions({
@@ -40,6 +48,43 @@ const store = initializeStore({
       }),
       mutation: (state, { response }) => {
         Vue.set(state, 'user', response);
+      },
+    },
+    GET_ALL_TEAMS: {
+      action: (ctx, teamId) => ({
+        method: 'get',
+        url: '/teams',
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'teams', _.keyBy(response, 'id'));
+      },
+    },
+    GET_TEAM: {
+      action: (ctx, teamId) => ({
+        method: 'get',
+        url: `/teams/${teamId}`,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'team', response);
+      },
+    },
+    UPDATE_TEAM: {
+      action: (ctx, payload) => ({
+        method: 'patch',
+        url: `/teams/${payload.id}`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state.teamDetails, 'team', response);
+      },
+    },
+    JOIN_TEAM: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: `/teams/${ctx.state.team.id}/join`,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'teamDetails', response);
       },
     },
   }, {

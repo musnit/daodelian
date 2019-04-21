@@ -35,7 +35,6 @@ module.exports = {
           resources: [
             './src/assets/style/_variables.less',
             './src/assets/style/_colors.less',
-            './src/assets/style/chessboard-0.3.0.css',
           ],
         })
         .end();

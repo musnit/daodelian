@@ -12,7 +12,6 @@ Vue.component('form-input-option', require('./general/form-input-option').defaul
 Vue.component('form-row', require('./general/form-row').default);
 Vue.component('save-bar', require('./general/save-bar').default);
 Vue.component('v-button', require('./general/v-button').default);
-
-// Vue.component('error-message', require('./general/error-message').default);
-// Vue.component('icon', require('./general/icon').default);
+Vue.component('error-message', require('./general/error-message').default);
+Vue.component('icon', require('./general/icon').default);
 // Vue.component('popup', require('./general/popup').default);
