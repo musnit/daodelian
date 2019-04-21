@@ -9,9 +9,9 @@ layout.game-page
       header.game-header
         .game-type {{ GAME_LABELS[game.gameType] }}
         .matchup
-          router-link(:to='`/team/${game.team0.id}`') {{ game.team0.name }}
+          router-link(:to='`/team/${game.team0 && game.team0.id}`') {{ game.team0.name }}
           | &nbsp;- vs -&nbsp;
-          router-link(:to='`/team/${game.team1.id}`') {{ game.team1.name }}
+          router-link(:to='`/team/${game.team1 && game.team1.id}`') {{ game.team1.name }}
       .moves
         .proposal-area
           h3 Create Proposal
@@ -182,7 +182,7 @@ export default {
 
 #board {
   width: 100%;
-  max-width: 400px;
+  max-width: 500px;
 }
 
 </style>
