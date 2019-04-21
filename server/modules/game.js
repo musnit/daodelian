@@ -142,16 +142,15 @@ class Game {
   }
 
   async finalizeVotes() {
-    console.log("HEY1")
     await this.loadFromDb();
 
-    if(!this.isStarted){
-      return
+    if (!this.isStarted) {
+      return;
     }
-    console.log("HEY2")
+    console.log('HEY2');
 
     if (this.gameType === 'sc2') {
-      console.log("HEY23")
+      console.log('HEY23');
 
       this.finalizeVotesForTeam(0);
       this.finalizeVotesForTeam(1);
@@ -162,17 +161,17 @@ class Game {
   }
 
   finalizeVotesForTeam(teamIndex) {
-    console.log("HEY4")
+    console.log('HEY4');
     const winningProposal = _.maxBy(this.proposals[teamIndex], 'votes');
-    console.log(this.proposals)
-    console.log({winningProposal})
+    console.log(this.proposals);
+    console.log({ winningProposal });
 
     if (this.gameType === 'sc2') {
       if (winningProposal) {
-        console.log("HEY45")
+        console.log('HEY45');
 
         this.gameState[`team${teamIndex}strategy`] = winningProposal.strategy;
-        db.setKey('strat', teamIndex+1, winningProposal.strategy);
+        db.setKey('strat', teamIndex + 1, winningProposal.strategy);
       }
     } else if (this.gameType === 'chess') {
       this.gameState.boardState = winningProposal && winningProposal.boardState;

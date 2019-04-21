@@ -58,7 +58,7 @@ module.exports = (router) => {
     //   ctx.throw('Conflict', 'Game has already started');
     // }
     ctx.$.game.beginGame();
-    if(ctx.$.game.gameType === 'sc2') {
+    if (ctx.$.game.gameType === 'sc2') {
       startSC2Game();
     }
     await ctx.$.game.save();

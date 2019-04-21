@@ -88,6 +88,16 @@ const store = initializeStore({
         Vue.set(state, 'teamDetails', response);
       },
     },
+    ADD_TEAM: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: '/teams',
+      }),
+      mutation: (state, { response }) => {
+
+      },
+    },
+
   }, {
     actions: {
       LOGOUT(ctx) {

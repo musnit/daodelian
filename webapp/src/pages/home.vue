@@ -4,6 +4,7 @@
     div(v-if='getTeamsRequest.isPendingOrEmpty')
     div(v-else-if='getTeamsRequest.isError')
     div(v-else)
+      v-button(@click='addTeamButtonHandler') Create a new team
       ul
         li(v-for='t in teams')
           router-link(:to='`/team/${t.id}`') {{ t.name }}
@@ -31,6 +32,11 @@ export default {
   },
   mounted() {
     this.$store.dispatchApiAction('GET_ALL_TEAMS');
+  },
+  methods: {
+    addTeamButtonHandler() {
+      this.$store.dispatchApiAction('ADD_TEAM');
+    },
   },
 };
 </script>
