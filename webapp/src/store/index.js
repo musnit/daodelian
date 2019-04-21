@@ -13,12 +13,14 @@ const store = initializeStore({
     user: {},
     game: {},
     team: {},
+    web3instance: null,
   },
   getters: {
     isUserLoggedIn(state, getters) {
       return getters.authUserAddress && getters.authUserSignedMessage && state.user.address;
     },
-    user(state) { return state.user; },
+    user: state => state.user,
+    web3instance: state => state.web3instance,
   },
   ...buildApiActions({
     FETCH_AUTH_USER: {
@@ -46,10 +48,16 @@ const store = initializeStore({
         ctx.commit('LOGOUT');
         ctx.dispatch('clearMetamaskAuth');
       },
+      setRootWebThree(ctx, inst) {
+        ctx.commit('SET_ROOT_WEBTHREE', inst);
+      },
     },
     mutations: {
       LOGOUT(state) {
         state.user = {};
+      },
+      SET_ROOT_WEBTHREE(state, inst) {
+        state.web3instance = inst;
       },
     },
   }),

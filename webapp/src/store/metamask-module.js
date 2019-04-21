@@ -40,12 +40,14 @@ export default {
         // Request account access if needed
         try {
           await window.ethereum.enable();
+          ctx.dispatch('setRootWebThree', window.ethereum, { root: true });
         } catch (error) { // User denied account access...
           ctx.commit('UPDATE_ERROR', 'DENIED_ACCESS');
           return;
         }
       } else if (window.web3) { // Legacy dapp browsers...
         window.web3 = new Web3(window.web3.currentProvider);
+        ctx.dispatch('setRootWebThree', window.web3, { root: true });
       } else { // Non-dapp browsers...
         ctx.commit('UPDATE_ERROR', 'NO_WEB3');
         return;
