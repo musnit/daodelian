@@ -177,8 +177,8 @@ class Game {
     } else if (this.gameType === 'chess') {
       this.gameState.boardState = winningProposal && winningProposal.boardState;
       this.gameState.whosTurn = this.gameState.whosTurn === 0 ? 1 : 0;
-      this.proposals[teamIndex] = [];
     }
+    this.proposals[teamIndex] = [];
 
     // add more votes if quadratic
     if (
