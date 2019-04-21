@@ -1,6 +1,5 @@
 <template lang='pug'>
-  .layout.home-page
-
+  layout.home-page
     h2 Teams
     div(v-if='getTeamsRequest.isPendingOrEmpty')
     div(v-else-if='getTeamsRequest.isError')
@@ -17,7 +16,6 @@ import { mapState, mapGetters } from 'vuex';
 import { mapRequestStatuses } from '@/lib/vuex-api';
 
 const components = {
-  layout: require('@/components/layout').default,
 };
 
 

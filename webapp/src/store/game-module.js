@@ -31,6 +31,17 @@ const gameModule = {
         Vue.set(state, 'game', response);
       },
     },
+    BEGIN_GAME: {
+      action: ctx => ({
+        method: 'post',
+        url: `/games/${ctx.state.game.channelId}/begin`,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'game', response);
+      },
+    },
+
+
     FETCH_GAME_PROPOSALS: {
       action: (ctx, payload) => ({
         method: 'get',

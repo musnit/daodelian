@@ -1,5 +1,5 @@
 <template lang='pug'>
-.layout.about-page
+layout.about-page
   h1 Your Profile
 
   template(v-if='!isUserLoggedIn')
@@ -35,7 +35,6 @@ import { mapRequestStatuses } from '@/lib/vuex-api';
 import { vuelidateGroupMixin } from '@/lib/vuelidate-group';
 
 const components = {
-  layout: require('@/components/layout').default,
 };
 
 

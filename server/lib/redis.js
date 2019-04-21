@@ -16,7 +16,7 @@ client.on('error', (err) => {
 async function setKey(type, id, data) {
   return client.setAsync(`${type}:${id}`, JSON.stringify(data));
 }
-async function getKey(type, id, data) {
+async function getKey(type, id) {
   const rawVal = await client.getAsync(`${type}:${id}`);
   return JSON.parse(rawVal);
 }

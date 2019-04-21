@@ -25,14 +25,14 @@ function initGovState(team) {
     }
   }
 }
-function initGameState(gameOptions) {
-  if (gameOptions.gameType === 'chess') {
+function initGameState(gameType) {
+  if (gameType === 'chess') {
     return {
       whosTurn: 0,
       board: 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1',
     };
   }
-  if (gameOptions.gameType === 'sc2') {
+  if (gameType === 'sc2') {
     return {
       team0Strategy: 'zealot',
       team1Strategy: 'zealot',
@@ -49,18 +49,41 @@ class Game {
 
   async loadFromDb() {
     const data = await db.getKey('game', this.channelId);
+    _.assign(this, data);
 
     this._teams = [
-      await db.getKey('team', this.team1Id),
-      await db.getKey('team', this.team2Id),
+      await db.getKey('team', this.team0id),
+      await db.getKey('team', this.team1id),
     ];
+    console.log(this._teams);
 
-    _.assign(this, data);
     return data;
   }
 
   async save() {
     await db.setKey('game', this.channelId, this);
+  }
+
+  serializeForUser(address) {
+    const serialized = {
+      ..._.omit(this, '_teams', 'govState', 'proposals'),
+      team0: this._teams[0],
+      team1: this._teams[1],
+    };
+
+    let teamNumber;
+    if (this._teams[0].memberIds.includes(address)) {
+      teamNumber = 0;
+    } else if (this._teams[1].memberIds.includes(address)) {
+      teamNumber = 1;
+    }
+    serialized.yourTeam = teamNumber;
+
+    if (teamNumber) {
+      serialized.govState = this.govState[teamNumber];
+      serialized.proposals = this.proposals[teamNumber];
+    }
+    return serialized;
   }
 
   setOptions(options) {

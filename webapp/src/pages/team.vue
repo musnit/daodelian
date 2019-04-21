@@ -1,5 +1,5 @@
 <template lang='pug'>
-.layout.team-page
+layout.team-page
   template(v-if='getTeamRequest.isPendingOrEmpty')
     h1 Loading...
   template(v-else-if='getTeamRequest.isError')
@@ -127,7 +127,6 @@ import { mapRequestStatuses } from '@/lib/vuex-api';
 import { vuelidateGroupMixin } from '@/lib/vuelidate-group';
 
 const components = {
-  layout: require('@/components/layout').default,
 };
 
 const GAME_LABELS = {

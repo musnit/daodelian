@@ -31,10 +31,7 @@ module.exports = (router) => {
 
   router.param('gameId', async (gameId, ctx, next) => {
     ctx.$.game = new Game(gameId);
-    ctx.$.gameData = await ctx.$.game.loadFromDb();
-
-    ctx.$.team0 = await db.getKey('team', ctx.$.game.team0id);
-    ctx.$.team1 = await db.getKey('team', ctx.$.game.team1id);
+    await ctx.$.game.loadFromDb();
 
     return next();
   });
@@ -46,11 +43,17 @@ module.exports = (router) => {
 
   router.get('/games/:gameId', async (ctx, next) => {
     console.log('ctx.$.game', ctx.$.game);
-    ctx.body = {
-      ...ctx.$.gameData,
-      team0: ctx.$.team0,
-      team1: ctx.$.team1,
-    };
+    console.log(ctx.$.game);
+    ctx.body = ctx.$.game.serializeForUser(_.get(ctx.$.authUser, 'address'));
+  });
+
+  router.post('/games/:gameId/begin', async (ctx, next) => {
+    // if (ctx.$.game.isStarted) {
+    //   ctx.throw('Conflict', 'Game has already started');
+    // }
+    ctx.$.game.beginGame();
+    await ctx.$.game.save();
+    ctx.body = ctx.$.game.serializeForUser(_.get(ctx.$.authUser, 'address'));
   });
 
   router.post('/games/:gameId/proposals', async (ctx, next) => {

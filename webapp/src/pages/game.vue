@@ -1,5 +1,5 @@
 <template lang='pug'>
-.layout.game-page
+layout.game-page
   template(v-if='fetchGameRequest.isPendingOrEmpty')
     h1 Loading...
   template(v-else-if='fetchGameRequest.isError')
@@ -9,22 +9,16 @@
       header.game-header
         .game-type {{ GAME_LABELS[game.gameType] }}
         .matchup
-          router-link(:to='`/team/${game.team0 && game.team0.id}`') {{ game.team0.name }}
+          router-link(:to='`/team/${game.team0.id}`') {{ game.team0.name }}
           | &nbsp;- vs -&nbsp;
-          router-link(:to='`/team/${game.team1 && game.team1.id}`') {{ game.team1.name }}
+          router-link(:to='`/team/${game.team1.id}`') {{ game.team1.name }}
       .moves
         .proposal-area
           h3 Create Proposal
           div(v-if='game.gameType === "chess"')
             | Propose a move by dragging the piece on the chessboard
           div(v-else-if='game.gameType === "sc2"')
-            div Select primary unit for strategy
-            button(
-              v-for="item in sc2Buttons"
-              @click.prevent='submitAction(item)'
-            ).sc2-button
-              img(:src='item.src')
-              span {{item.name}}
+            | starcraft controls
         .voting-area
           h3 Vote
           div(v-if='game.gameType === "chess"')
@@ -32,18 +26,24 @@
           div(v-else-if='game.gameType === "sc2"')
 
       .game
-        template(v-if='game.gameType === "chess"')
-          #board
+        div(v-if='!game.isStarted')
+          p Game has not begun yet
+          v-button(@click='beginGameButtonHandler') Begin the game
+        div(v-else)
+          template(v-if='game.gameType === "chess"')
+            .whos-turn
+              | Turn: {{ game['team'+game.gameState.whosTurn].name }}
+            #board
 
-        template(v-else-if='game.gameType === "sc2"')
-          iframe(
-            src='https://player.twitch.tv/?channel=musnit'
-            frameborder='0'
-            allowfullscreen='true'
-            scrolling='no'
-            height='100%'
-            width='100%'
-          )
+          template(v-else-if='game.gameType === "sc2"')
+            iframe(
+              src='https://player.twitch.tv/?channel=musnit'
+              frameborder='0'
+              allowfullscreen='true'
+              scrolling='no'
+              height='100%'
+              width='100%'
+            )
       .chat
         iframe(
           src='https://www.twitch.tv/embed/musnit/chat'
@@ -60,42 +60,17 @@ import _ from 'lodash';
 import { mapState, mapGetters } from 'vuex';
 import $ from 'jquery';
 import ChessBoard from '@/lib/chessboard-0.3.0';
-import Chess from 'chess.js';
 
 import { mapRequestStatuses } from '@/lib/vuex-api';
 import { vuelidateGroupMixin } from '@/lib/vuelidate-group';
 
 const components = {
-  layout: require('@/components/layout').default,
 };
 
 const GAME_LABELS = {
   chess: 'Chess',
   sc2: 'Starcraft 2',
 };
-
-const sc2Buttons = [
-  {
-    id: 'zealot',
-    name: 'Zealot',
-    src: require('@/assets/images/zealot.jpg'),
-  },
-  {
-    id: 'stalker',
-    name: 'Stalker',
-    src: require('@/assets/images/stalker.jpg'),
-  },
-  {
-    id: 'sentry',
-    name: 'Sentry',
-    src: require('@/assets/images/sentry.jpg'),
-  },
-  {
-    id: 'adept',
-    name: 'Adept',
-    src: require('@/assets/images/adept.jpg'),
-  },
-];
 
 export default {
   components,
@@ -109,9 +84,6 @@ export default {
   data: () => ({
     team: {},
     createGamePayload: {},
-    gameLogic: {},
-    proposingMoveSource: null,
-    sc2Buttons,
   }),
   props: {
     gameId: String,
@@ -130,42 +102,21 @@ export default {
     createOrUpdateTeamRequest() {
       return this.team.id ? this.updateTeamRequest : this.createTeamRequest;
     },
-    themeStyles() {
-      // css that gets injected into the head
-      if (this.proposingMoveSource) {
-        return `.square-${this.proposingMoveSource} {background: yellow !important;} .square-${this.proposingMoveTarget} {background: yellow !important;}`;
-      }
-
-      return '';
-    },
 
   },
   watch: {
   },
   methods: {
+    beginGameButtonHandler() {
+      this.$store.dispatchApiAction('BEGIN_GAME');
+    },
+
     initChessGame() {
-      this.gameLogic = new Chess();
-
       const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
-        const gameMove = this.gameLogic.move({
-          from: source,
-          to: target,
-          promotion: 'q',
-        });
-        if (gameMove === null) { return 'snapback'; }
-
         console.log(source, target, piece, newPos, oldPos, orientation);
         const move = { source, target };
         this.chessInteraction(move, newPos);
         return 'snapback';
-      };
-      const onDragStart = function (source, piece, position, orientation) {
-      /*     if (this.gameLogic.gameOver() === true ||
-        (this.gameLogic.turn() === 'w' && piece.search(/^b/) !== -1) ||
-        (this.gameLogic.turn() === 'b' && piece.search(/^w/) !== -1) ||
-        (this.gameLogic.turn() !== side.charAt(0))) {
-        return false;
-      } */
       };
       this.draggableCfg = {
         draggable: true,
@@ -190,15 +141,12 @@ export default {
       // disable proposing
       this.board = window.ChessBoard('board', this.notDraggableCfg);
     },
-    moveReceived(move) {
-      // TODO: this.board.move(move)
-      // TODO: re-enable proposing if my turn again
-    },
+
   },
   async mounted() {
     window.$ = $;
     await this.$store.dispatchApiAction('FETCH_GAME', this.gameId);
-    if (this.game.gameType === 'chess') this.initChessGame();
+    // if (this.game.gameType === 'chess') this.initChessGame();
   },
 };
 </script>
@@ -243,15 +191,7 @@ export default {
 
 #board {
   width: 100%;
-  max-width: 500px;
+  max-width: 400px;
 }
 
-.sc2-button {
-    padding: 0px;
-    width: 88px;
-    font-style: normal;
-    font-weight: bold;
-    height: 108px;
-    margin: 5px;
-}
 </style>

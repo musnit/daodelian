@@ -45,5 +45,6 @@ module.exports = {
     'consistent-return': 0,
     'func-names': 0,
     'max-len': 0,
+    'no-underscore-dangle': 0,
   }
 }

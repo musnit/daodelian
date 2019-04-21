@@ -1,5 +1,5 @@
 <template lang='pug'>
-.layout.game-detail
+layout.game-detail
   h1
     | Starcraft 2 - {{ scId }}
 

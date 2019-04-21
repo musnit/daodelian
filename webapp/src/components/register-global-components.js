@@ -6,6 +6,8 @@
 
 import Vue from 'vue';
 
+Vue.component('layout', require('./layout').default);
+
 Vue.component('form-group', require('./general/form-group').default);
 Vue.component('form-input', require('./general/form-input').default);
 Vue.component('form-input-option', require('./general/form-input-option').default);

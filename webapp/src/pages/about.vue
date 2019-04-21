@@ -1,5 +1,5 @@
 <template lang='pug'>
-.layout.about-page(
+layout.about-page(
 )
   h1 About
 
@@ -8,7 +8,6 @@
 <script>
 
 const components = {
-  layout: require('@/components/layout').default,
 };
 
 

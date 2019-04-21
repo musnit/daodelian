@@ -1,0 +1,31 @@
+create team - with governance settings
+join a team
+accept/reject user attempting to join a team
+
+propose a new game between team A and team B - settings of game?
+vote on accepting/rejecting game proposal
+
+proposal phase
+- propose "move"
+- nothing to propose
+
+vote on proposal phase (depends on settings)
+- vote (select) a "move"
+- rank possible moves
+
+
+
+
+DB
+- users
+  - address
+- teams
+  - governance specs
+    - proposal mechanism
+    - voting mechanism
+  - users in the group
+- games
+  - participants (host, opponent)
+  - game specs
+  - historical game state
+  - current game state

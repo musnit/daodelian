@@ -20,11 +20,7 @@ const components = {
 
 export default {
   components,
-  metaInfo() {
-  },
   props: {
-
-
   },
   computed: {
     ...mapState(['metamask']),
