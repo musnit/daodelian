@@ -66,7 +66,8 @@ class Game {
     // TODO: Validate that the participant is the same as origin proposal
     // Get game proposal and Send to the state channel
     const game = await db.getKey('game', channelId);
-    const proposal = game.pendingState.length > 0 ? game.pendingState.splice(proposedIdx, 1) : null;
+    const idx = proposedIdx || game.pendingState.length;
+    const proposal = game.pendingState.length > 0 ? game.pendingState.splice(proposedIdx, 1) : game.pendingState[idx];
     game.pendingState = [];
     game.state.push(proposal);
     await db.setKey('game', this.channelId, game);
@@ -75,8 +76,9 @@ class Game {
     // based on game type, submit to module!
     if (game.options && game.options.gameType && game.options.gameType === 'sc2') {
       const stateData = proposal[0];
+      console.log('stateData', stateData, stateData.player);
       starcraft.startGame();
-      starcraft.setStrategy(stateData.player, stateData.strategy);
+      starcraft.setStrategy(stateData);
     }
 
     return game;

@@ -4,7 +4,12 @@ const db = require('../lib/redis');
 module.exports = {
   runningGame: null,
 
-  startGame: () => {
+  startGame: async () => {
+    const p1Strat = await db.getKey('strat', 1);
+    const p2Strat = await db.getKey('strat', 2);
+    // check if both states are set, before starting game
+    if (typeof p1Strat === 'undefined' || typeof p2Strat === 'undefined') return;
+
     const cmd = spawn('cmd.exe', ['/c', 'Sc2LadderServer.exe']);
     cmd.stdout.on('data', (data) => {
       console.log(data.toString());
