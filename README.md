@@ -1,40 +1,23 @@
-### "...Vitalik said 'I'd like to see two DAOs play chess against each other' and then he giggled." - [Tom Nash](https://github.com/morelazers).
+**Ethereum is at its best as a coordination layer.**
+ 
+Sadly, our tools for coordination are underdeveloped.
 
-# Use games between DAOs as a fun and engaging way to build a framework for many types of governance.
+We need to create a new class of tool to help us experiment with many types of intelligence strategy as quickly as we possibly can. 
+ 
+Our goal is to create a tool to help us rapidly evolve our coordinated intelligence.
+ 
+We've taken cues from research in AI to create a framework in which teams coordinate around a game environment. By focusing the teams on a clear set of rewards (winning the game), teams should be able to quickly test many different practical methods for coordinating intelligence. Winning strategies should be adapted for use by other teams; losing strategies should be revised or discarded.
+ 
+## Our framework provides: 
+ - A neutral state channel, powered by Counterfactual framework, which provides a mechanism to ensure that games are conducted according to their rules, and can also store stakes submitted by either team.
+ - An API into an abstract game environment. Governance decisions created in our UI or in an external app are sent both to our state channel and the game engine.
+ - An interface for teams to organize in, find & create games, and display past results.
+ - A basic toolkit for intelligence coordination, with multiple choices for participation, decision making mechanisms, and nomination procedures.
+ 
+Our expectation is that teams that can create winning records with high efficiency will have optimized their decision making process, and that learnings from winning strategies can be applied to real world problems with symmetry to the games in question.
+ 
+For example, governing a bot that plays StarCraft by setting strategic parameters is similar to funding a development team and setting parameters around project management. Both are problems of resource management; in the case of the team, it is too much effort for a team to manually direct each unit (a task a bot is ideally suited for), just like a fund manager will want to set directional parameters around project KPIs.
+ 
+Ultimately, we hope to see this project as a practical framework to help advance the study of decision making economics. Token based voting schemes and the ability to incent specific actions that have emerged alongside Ethereum allow us the ability to study a new resolution of detail in behavioral economics.
 
-## Hypothesis: 
-Governance has three major components:
-1) Question formulation
-1) Decision making economy 
-    1) who gets votes
-    1) how many votes do they get
-    1) how often are decisions made
-    1) are votes minted / burned or circulated like currency
-    1) many other details
-1) Decision making manifold (the specific mechanism for voting)
-
-## Problem:
-The easiest way to disrupt governance is to attack the framing of a question. This affects meatspace politics in addition to Ethereum governance. In Ethereum, this often looks like ad hominem attacks or demands for audits / guarantees / "proof".
-
-## Problem:
-Economics of decision making are not well studied; it's a new field.
-
-## Proposed Solution:
-Create a game played between DAOs that requires complex coordination among the members of a DAO.
-
-Creating a game avoids all problems related to Question Formulation. If the game has a clear goal, there is little attack surface against the politics of the question itself.
-
-The structure / rules of the game itself helps simplify many questions related to Decision Making Economy.
-
-## Expected Outcome:
-Creating a game should allow our community to rapidly surface use cases required in a proper toolchain for governance.
-
-A continuous, long-lived game should provide a backdrop for experimentation - each DAO can choose any strategy for coordination and quickly test it. How do the members decide on a move? How does the DAO allocate resources? 
-
-Over the long term, DAOs should be able to quickly iterate on strategies for coordination as they compete to win games. Winning strategies can then be applied toward real world use cases.
-
-## Proposed outputs:
-- A scalable game that can be played between two or more DAOs.
-- An extremely simple interface to allow DAO members to begin playing the game.
-- Robust APIs for DAOs to build more advanced / specific tools against.
-- (possibly included) A very simple framework for DAO creation.
+[Appendix: Future Experiments & Implementations](https://github.com/musnit/daodelian/docs/appendix.md)
