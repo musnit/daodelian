@@ -42,22 +42,22 @@ import { mapActions } from 'vuex';
 
 const buttons = [
   {
-    id: 1,
+    id: 'zealot',
     name: 'Zealot',
     src: require('@/assets/images/zealot.jpg'),
   },
   {
-    id: 2,
+    id: 'stalker',
     name: 'Stalker',
     src: require('@/assets/images/stalker.jpg'),
   },
   {
-    id: 3,
+    id: 'sentry',
     name: 'Sentry',
     src: require('@/assets/images/sentry.jpg'),
   },
   {
-    id: 4,
+    id: 'adept',
     name: 'Adept',
     src: require('@/assets/images/adept.jpg'),
   },
@@ -69,16 +69,19 @@ export default {
   data() {
     return {
       buttons,
+      flip: 1,
     };
   },
 
   methods: {
     async submitAction(item) {
       console.log('item', item);
+      // TODO: Set player based on idx from participant array
+      const player = this.flip === 1 ? 2 : 1;
+      this.flip = player;
       await this.addProposal({
         proposedState: {
-          // TODO: Set player based on idx from participant array
-          player: 2,
+          player,
           strat: item.id,
         },
       });
