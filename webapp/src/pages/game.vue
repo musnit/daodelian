@@ -18,7 +18,13 @@ layout.game-page
           div(v-if='game.gameType === "chess"')
             | Propose a move by dragging the piece on the chessboard
           div(v-else-if='game.gameType === "sc2"')
-            | starcraft controls
+            div Select primary unit for strategy
+            button(
+              v-for="item in sc2Buttons"
+              @click.prevent='submitSC2Action(item)'
+            ).sc2-button
+              img(:src='item.src')
+              span {{item.name}}
         .voting-area
           h3 Vote
           div(v-if='game.gameType === "chess"')
@@ -105,12 +111,25 @@ export default {
 
   },
   watch: {
+    game() {
+      if (this.game.gameType === 'chess' && this.game.isStarted) {
+        setTimeout(() => {
+          this.initChessGame();
+        }, 200);
+      }
+    },
   },
   methods: {
     beginGameButtonHandler() {
       this.$store.dispatchApiAction('BEGIN_GAME');
     },
-
+    async submitSC2Action(item) {
+      console.log('item', item);
+      // TODO: Set player based on idx from participant array
+      const player = this.flip === 1 ? 2 : 1;
+      this.flip = player;
+      window.api.post(`/sc2/strat/${this.flip}/${item.id}`);
+    },
     initChessGame() {
       const onDrop = (source, target, piece, newPos, oldPos, orientation) => {
         console.log(source, target, piece, newPos, oldPos, orientation);
@@ -146,7 +165,6 @@ export default {
   async mounted() {
     window.$ = $;
     await this.$store.dispatchApiAction('FETCH_GAME', this.gameId);
-    // if (this.game.gameType === 'chess') this.initChessGame();
   },
 };
 </script>
