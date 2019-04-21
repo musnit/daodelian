@@ -16,7 +16,7 @@ const stateChannelModule = {
     deployAddress: state => state.deployAddress,
   },
   actions: {
-    async createStateChannel(ctx, { hostAddress, opponentAddress }) {
+    async createStateChannel(ctx, { team0, team1 }) {
       const rootWeb3 = window.web3;
       const rootUser = window.web3.givenProvider.selectedAddress;
       const from = rootUser || null;
@@ -28,7 +28,7 @@ const stateChannelModule = {
       contract.deploy({
         data: sc.bytecodeInstance,
         // TODO: the two participant address here
-        // arguments: [hostAddress, opponentAddress]
+        // arguments: [team0, team1]
         arguments: [],
       })
         .send({

@@ -197,7 +197,7 @@ export default {
       // Initialize state channel then launch new game within DB
       const hostAddress = '';
       const opponentAddress = '';
-      await this.createStateChannel({ hostAddress, opponentAddress });
+      await this.createStateChannel({ team0: '', team1: '' });
       console.log('contract', this.deployAddress);
 
       await this.$store.dispatchApiAction('CREATE_GAME', {
