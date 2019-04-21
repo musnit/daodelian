@@ -299,6 +299,30 @@ export default {
   height: 60px;
   position: absolute;
   top: 0;
+  display: flex;
+  background: #203d65;
+  color: white;
+  width: 100%;
+
+  .game-type {
+    font-size: 21pt;
+    margin: auto 40px;
+  }
+
+  .matchup {
+    margin: auto;
+  }
+
+  a {
+    border: 1px solid lightgray;
+    border-radius: 20px;
+    color: white;
+    font-weight: 600;
+    display: inline-block;
+    padding: 6px 10px 3px;
+    margin: 0 10px;
+    text-decoration: none;
+  }
 }
 .game-area {
   height: 100%;
@@ -309,7 +333,9 @@ export default {
 
   .moves {
     width: 300px;
-    background: red;
+    background: #3c5b85;
+    color: white;
+    padding: 20px;
     display: flex;
     flex-direction: column;
 
@@ -319,11 +345,13 @@ export default {
   }
   .chat {
     width: 300px;
-    background: blue;
+    background: #3c5b85;
   }
   .game {
     flex: 1 0 0;
-    background: green;
+    background: rgba(60, 91, 133, 0.5);
+    text-align: center;
+    color: white;
 
     > div {
       height: 100%;
