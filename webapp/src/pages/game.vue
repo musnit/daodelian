@@ -78,6 +78,28 @@ const GAME_LABELS = {
   sc2: 'Starcraft 2',
 };
 
+const sc2Buttons = [
+  {
+    id: 'zealot',
+    name: 'Zealot',
+    src: require('@/assets/images/zealot.jpg'),
+  },
+  {
+    id: 'stalker',
+    name: 'Stalker',
+    src: require('@/assets/images/stalker.jpg'),
+  },
+  {
+    id: 'sentry',
+    name: 'Sentry',
+    src: require('@/assets/images/sentry.jpg'),
+  },
+  {
+    id: 'adept',
+    name: 'Adept',
+    src: require('@/assets/images/adept.jpg'),
+  },
+];
 export default {
   components,
   mixins: [vuelidateGroupMixin],
@@ -90,6 +112,7 @@ export default {
   data: () => ({
     team: {},
     createGamePayload: {},
+    sc2Buttons,
   }),
   props: {
     gameId: String,
@@ -205,6 +228,15 @@ export default {
     flex: 1 0 0;
     background: green;
   }
+}
+
+.sc2-button {
+    padding: 0px;
+    width: 88px;
+    font-style: normal;
+    font-weight: bold;
+    height: 108px;
+    margin: 5px;
 }
 
 #board {
