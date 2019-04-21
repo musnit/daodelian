@@ -106,7 +106,7 @@ class Game {
 
     this.turnInterval = setInterval(async () => {
       this.finalizeVotes();
-    }, 5000);
+    }, 10000);
   }
 
   addProposal(team, proposal) {

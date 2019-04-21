@@ -1,6 +1,6 @@
 <template lang='pug'>
 layout.game-page
-  template(v-if='fetchGameRequest.isPendingOrEmpty')
+  template(v-if='!fetchGameRequest.wasRequested || !game.gameType')
     h1 Loading...
   template(v-else-if='fetchGameRequest.isError')
     h1 Error - {{ fetchGameRequest.errorMessage }}
@@ -41,7 +41,6 @@ layout.game-page
                   .sc2-proposal
                   img(:src='sc2Lookup[p.strategy].src' v-if='sc2Lookup[p.strategy]')
                   span(v-if='sc2Lookup[p.strategy]') {{sc2Lookup[p.strategy].name}}
-                  Vote
                 span(v-if='game.gameType === "chess"')
                   | Move - {{ p.move }}
                 span.numvotes - {{ p.votes || 0 }}
@@ -271,7 +270,9 @@ export default {
   },
   async mounted() {
     window.$ = $;
-    await this.$store.dispatchApiAction('FETCH_GAME', this.gameId);
+    setInterval(async () => {
+      await this.$store.dispatchApiAction('FETCH_GAME', this.gameId);
+    }, 5000);
   },
 };
 </script>
