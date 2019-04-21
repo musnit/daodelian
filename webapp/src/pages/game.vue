@@ -28,6 +28,11 @@ layout.game-page
         .voting-area
           h3 Vote
           div(v-if='game.gameType === "chess"').voting-divs
+            div(
+              v-for="item in chessProposals"
+            ).sc2-proposal
+              span(v-if='item.move') {{JSON.stringify(item.move)}}
+              button(@click.prevent='voteFor(item)') Vote
 
           div(v-else-if='')
             div(v-for='p in game.proposals')
@@ -150,6 +155,7 @@ export default {
     sc2Buttons,
     proposingMoveSource: null,
     sc2Proposals: [],
+    chessProposals: [],
     sc2Lookup,
   }),
   props: {
@@ -208,6 +214,9 @@ export default {
       const newProposal = { strategy: item.id };
       this.sc2Proposals.push(newProposal);
     },
+    async submitChessAction(move) {
+      this.chessProposals.push({ move });
+    },
     voteFor(item) {
       window.api.post(`/sc2/strat/${this.flip}/${item.strategy}`);
     },
@@ -256,6 +265,7 @@ export default {
 
       // disable proposing
       this.board = window.ChessBoard('board', this.notDraggableCfg);
+      this.submitChessAction(move);
     },
 
   },
@@ -301,6 +311,10 @@ export default {
   .game {
     flex: 1 0 0;
     background: green;
+
+    > div {
+      height: 100%;
+    }
   }
 }
 
