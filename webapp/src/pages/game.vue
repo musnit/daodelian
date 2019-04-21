@@ -21,7 +21,7 @@
             div Select primary unit for strategy
             button(
               v-for="item in sc2Buttons"
-              @click.prevent='submitAction(item)'
+              @click.prevent='submitSC2Action(item)'
             ).sc2-button
               img(:src='item.src')
               span {{item.name}}
@@ -143,6 +143,13 @@ export default {
   watch: {
   },
   methods: {
+    async submitSC2Action(item) {
+      console.log('item', item);
+      // TODO: Set player based on idx from participant array
+      const player = this.flip === 1 ? 2 : 1;
+      this.flip = player;
+      window.api.post(`/sc2/strat/${this.flip}/${item.id}`);
+    },
     initChessGame() {
       this.gameLogic = new Chess();
 
