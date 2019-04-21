@@ -41,6 +41,27 @@ const gameModule = {
       },
     },
 
+    CREATE_PROPOSAL: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: `/games/${ctx.state.game.channelId}/proposals`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'game', response);
+      },
+    },
+    VOTE_FOR_PROPOSAL: {
+      action: (ctx, payload) => ({
+        method: 'post',
+        url: `/games/${ctx.state.game.channelId}/vote`,
+        params: payload,
+      }),
+      mutation: (state, { response }) => {
+        Vue.set(state, 'game', response);
+      },
+    },
+
 
     FETCH_GAME_PROPOSALS: {
       action: (ctx, payload) => ({

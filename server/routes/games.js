@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const uuidv4 = require('uuid/v4');
 
 const db = require('../lib/redis');
 const Game = require('../modules/game');
@@ -32,6 +33,10 @@ module.exports = (router) => {
   router.param('gameId', async (gameId, ctx, next) => {
     ctx.$.game = new Game(gameId);
     await ctx.$.game.loadFromDb();
+    if (ctx.$.authUser) {
+      ctx.$.userTeam = ctx.$.game.getTeam(ctx.$.authUser.address);
+      console.log(`user is on team ${ctx.$.userTeam}`);
+    }
 
     return next();
   });
@@ -57,15 +62,24 @@ module.exports = (router) => {
   });
 
   router.post('/games/:gameId/proposals', async (ctx, next) => {
-    const gameInput = {
-      channelId: ctx.$.game.channelId,
+    ctx.$.game.addProposal(ctx.$.userTeam, {
       ...ctx.request.body,
-    };
+      id: uuidv4(),
+      createdBy: ctx.$.authUser.address,
+    });
+    await ctx.$.game.save();
+    ctx.body = ctx.$.game.serializeForUser(_.get(ctx.$.authUser, 'address'));
+  });
 
-    ctx.$.game = await ctx.$.game.proposalSubmit(gameInput);
-    ctx.body = {
-      ...ctx.$.game,
-    };
+  router.post('/games/:gameId/vote', async (ctx, next) => {
+    ctx.$.game.voteOnProposal(
+      ctx.$.userTeam,
+      ctx.$.authUser.address,
+      ctx.request.body.id,
+      ctx.request.body.numVotes,
+    );
+    await ctx.$.game.save();
+    ctx.body = ctx.$.game.serializeForUser(_.get(ctx.$.authUser, 'address'));
   });
 
   router.get('/games/:gameId/proposals/:proposedIdx', async (ctx, next) => {

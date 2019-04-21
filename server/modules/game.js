@@ -2,6 +2,7 @@ const _ = require('lodash');
 const crypto = require('crypto');
 
 const db = require('../lib/redis');
+const { ApiError } = require('../lib/errors');
 const StateChannel = require('./stateChannel');
 const starcraft = require('./starcraft');
 
@@ -46,7 +47,6 @@ class Game {
     this.channelId = id || crypto.randomBytes(8).toString('hex');
   }
 
-
   async loadFromDb() {
     const data = await db.getKey('game', this.channelId);
     _.assign(this, data);
@@ -55,35 +55,41 @@ class Game {
       await db.getKey('team', this.team0id),
       await db.getKey('team', this.team1id),
     ];
-    console.log(this._teams);
 
     return data;
   }
 
   async save() {
-    await db.setKey('game', this.channelId, this);
+    const toSave = _.omit(this, [
+      '_teams', 'turnInterval', 'team0', 'team1',
+    ]);
+    console.log('----------------', toSave);
+    await db.setKey('game', this.channelId, toSave);
   }
 
   serializeForUser(address) {
     const serialized = {
-      ..._.omit(this, '_teams', 'govState', 'proposals'),
+      ..._.omit(this, '_teams', 'govState', 'proposals', 'turnInterval'),
       team0: this._teams[0],
       team1: this._teams[1],
     };
 
-    let teamNumber;
-    if (this._teams[0].memberIds.includes(address)) {
-      teamNumber = 0;
-    } else if (this._teams[1].memberIds.includes(address)) {
-      teamNumber = 1;
-    }
+    const teamNumber = this.getTeam(address);
     serialized.yourTeam = teamNumber;
 
-    if (teamNumber) {
+
+    if (teamNumber !== null) {
       serialized.govState = this.govState[teamNumber];
       serialized.proposals = this.proposals[teamNumber];
     }
     return serialized;
+  }
+
+  getTeam(address) {
+    console.log(this._teams);
+    if (this._teams[0].memberIds.includes(address)) return 0;
+    if (this._teams[1].memberIds.includes(address)) return 1;
+    return null;
   }
 
   setOptions(options) {
@@ -97,14 +103,28 @@ class Game {
     this.proposals = [[], []];
     this.govState = [initGovState(this._teams[0]), initGovState(this._teams[1])];
     this.gameState = initGameState(this.gameType);
+
+    this.turnInterval = setInterval(async () => {
+      this.finalizeVotes();
+    }, 5000);
   }
 
   addProposal(team, proposal) {
+    if (!this.isStarted) {
+      throw new ApiError('Conflict', 'Game is not started');
+    }
+    if (this.gameType === 'chess') {
+      if (this.gameState.whosTurn !== team) {
+        throw new ApiError('Conflict', 'Only propose on your turn');
+      }
+    } else if (this.gameType === 'sc2') {
+      if (!proposal.strategy) throw new ApiError('BadRequest', 'Pick a strategy');
+    }
     this.proposals[team].push(proposal);
   }
 
-  voteOnProposal(team, userAddress, proposalIndex, numVotes = 1) {
-    const proposal = this.proposals[team][proposalIndex];
+  voteOnProposal(team, userAddress, proposalId, numVotes = 1) {
+    const proposal = _.find(this.proposals[team], { id: proposalId });
     proposal.votes = proposal.votes || 0;
     proposal.votes += numVotes;
 
@@ -117,10 +137,22 @@ class Game {
     }
   }
 
-  finalizeVotes(teamIndex) {
+  async finalizeVotes() {
+    if (this.gameType === 'sc2') {
+      this.finalizeVotesForTeam(0);
+      this.finalizeVotesForTeam(1);
+    } else {
+      this.finalizeVotesForTeam(this.gameState.whosTurn);
+    }
+    await this.save();
+  }
+
+  finalizeVotesForTeam(teamIndex) {
     const winningProposal = _.maxBy(this.proposals[teamIndex], 'votes');
     if (this.gameType === 'sc2') {
-      this.gameState[`team${teamIndex}strategy`] = winningProposal.strategy;
+      if (winningProposal) {
+        this.gameState[`team${teamIndex}strategy`] = winningProposal.strategy;
+      }
     } else if (this.gameType === 'chess') {
       this.gameState.board = winningProposal.board;
       this.gameState.whosTurn = this.gameState.whosTurn === 0 ? 1 : 0;

@@ -21,7 +21,7 @@ layout.game-page
             div Select primary unit for strategy
             button(
               v-for="item in sc2Buttons"
-              @click.prevent='submitSC2Action(item)'
+              @click.prevent='createStarcraftProposal(item.id)'
             ).sc2-button
               img(:src='item.src')
               span {{item.name}}
@@ -29,13 +29,20 @@ layout.game-page
           h3 Vote
           div(v-if='game.gameType === "chess"')
 
-          div(v-else-if='game.gameType === "sc2"')
+          div(v-else-if='')
+            div(v-for='p in game.proposals')
+              v-button(@click='voteForProposal(p.id)')
+                span(v-if='game.gameType === "sc2"')
+                  | New unit strategy - {{ p.strategy }}
+                span(v-if='game.gameType === "chess"')
+                  | Move - {{ p.move }}
+                span.numvotes - {{ p.votes || 0 }}
 
       .game
         div(v-if='!game.isStarted')
           p Game has not begun yet
           v-button(@click='beginGameButtonHandler') Begin the game
-        div(v-else)
+        template(v-else)
           template(v-if='game.gameType === "chess"')
             .whos-turn
               | Turn: {{ game['team'+game.gameState.whosTurn].name }}
@@ -146,6 +153,15 @@ export default {
     beginGameButtonHandler() {
       this.$store.dispatchApiAction('BEGIN_GAME');
     },
+    async createStarcraftProposal(strategy) {
+      await this.$store.dispatchApiAction('CREATE_PROPOSAL', { strategy });
+    },
+    async voteForProposal(proposalId) {
+      await this.$store.dispatchApiAction('VOTE_FOR_PROPOSAL', {
+        id: proposalId,
+      });
+    },
+
     async submitSC2Action(item) {
       console.log('item', item);
       // TODO: Set player based on idx from participant array
