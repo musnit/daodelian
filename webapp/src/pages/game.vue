@@ -239,7 +239,7 @@ export default {
           to: target,
           promotion: 'q',
         });
-        if (gameMove === null) { return 'snapback'; }
+        // if (gameMove === null) { return 'snapback'; }
 
         console.log(source, target, piece, newPos, oldPos, orientation);
         const move = { source, target };

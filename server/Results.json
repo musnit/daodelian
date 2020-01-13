@@ -1,0 +1,13 @@
+{
+    "Results": [
+        {
+            "Bot1": "ProtossBot2",
+            "Bot2": "ProtossBot1",
+            "Winner": "ProtossBot1",
+            "Map": "BlueshiftLE.SC2Map",
+            "Result": "Player2Win",
+            "GameTime": 19460,
+            "TimeStamp": "21-04-2019 10-11-40UTC"
+        }
+    ]
+}
