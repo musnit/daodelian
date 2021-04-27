@@ -13,6 +13,6 @@
     "@node-sc2/core": "node-sc2/core",
     "@node-sc2/system-protoss-supply": "node-sc2/system-protoss-supply",
     "pkg": "^4.3.7",
-    "redis": "^2.8.0"
+    "redis": "^3.1.1"
   }
 }
